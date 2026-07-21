@@ -1,1 +1,1 @@
-# Questo file identifica il package accounts come modulo Python.
+# Questo modulo espone l'applicazione accounts e supporta autenticazione, uffici e permessi utente.
