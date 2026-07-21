@@ -2,6 +2,39 @@
 from rest_framework.permissions import BasePermission
 
 
+def get_user_office_code(user):
+    """Restituisce il codice dell'ufficio dell'utente in maiuscolo, se presente."""
+    if user.is_superuser:
+        return None
+    try:
+        office = user.profile.office
+        return office.code.upper() if office and office.code else None
+    except Exception:
+        return None
+
+
+def can_access_document_model(user, model_name, action='read'):
+    """Controlla accesso ai documenti in base all'ufficio dell'utente."""
+    if user.is_superuser:
+        return True
+
+    office_code = get_user_office_code(user)
+    if office_code == 'ADMIN':
+        if model_name == 'MachineAdminDocument':
+            return action in {'read', 'write'}
+        if model_name == 'MachineDocument':
+            return action == 'read'
+    elif office_code == 'TECH':
+        if model_name == 'MachineDocument':
+            return action in {'read', 'write'}
+        if model_name == 'MachineAdminDocument':
+            return False
+
+    if action == 'write':
+        return can_write_field(user, model_name, '*')
+    return can_read_field(user, model_name, '*')
+
+
 class HasFieldPermission(BasePermission):
     """
     Custom permission: verifica che l'utente abbia il permesso

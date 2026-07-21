@@ -523,6 +523,11 @@ const Dashboard = {
     showUploadForm(machineId, type) {
         this.closeModal();
 
+        if (!Auth.canUploadDocumentType(type)) {
+            Components.toast('Non hai i permessi per caricare questo tipo di documento.', 'error');
+            return;
+        }
+
         const modal = document.getElementById('form-modal');
         const body = document.getElementById('form-modal-body');
         const title = document.getElementById('form-modal-title');

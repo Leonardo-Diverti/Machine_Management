@@ -54,6 +54,43 @@ const Auth = {
         return {};
     },
 
+    getUserOfficeCode() {
+        const office = this.getUserOffice();
+        return office && office.code ? office.code.toUpperCase() : '';
+    },
+
+    isAdministration() {
+        return this.getUserOfficeCode() === 'ADMIN';
+    },
+
+    isTechnicalOffice() {
+        return this.getUserOfficeCode() === 'TECH';
+    },
+
+    canViewTechnicalDocuments() {
+        return this.isAdministration() || this.isTechnicalOffice();
+    },
+
+    canUploadTechnicalDocuments() {
+        return this.isTechnicalOffice();
+    },
+
+    canViewAdminDocuments() {
+        return this.isAdministration();
+    },
+
+    canUploadAdminDocuments() {
+        return this.isAdministration();
+    },
+
+    canViewDocumentType(type) {
+        return type === 'admin' ? this.canViewAdminDocuments() : this.canViewTechnicalDocuments();
+    },
+
+    canUploadDocumentType(type) {
+        return type === 'admin' ? this.canUploadAdminDocuments() : this.canUploadTechnicalDocuments();
+    },
+
     canWrite(modelName, fieldName) {
         const user = this.getUser();
         if (!user) return false;

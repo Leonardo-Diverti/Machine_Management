@@ -6,7 +6,12 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.shortcuts import get_object_or_404
 
-from accounts.permissions import HasFieldPermission, get_user_field_permissions, can_write_field
+from accounts.permissions import (
+    HasFieldPermission,
+    get_user_field_permissions,
+    can_write_field,
+    can_access_document_model,
+)
 
 from .models import (Machine, MachineITData, MachineTechData,
                      MachineDocument, MachineAdminDocument, MachineStatusLog)
@@ -160,17 +165,22 @@ class MachineDocumentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, HasFieldPermission]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
+    def _ensure_access(self, action):
+        user = self.request.user
+        if not can_access_document_model(user, 'MachineDocument', action):
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied('Non hai i permessi per accedere ai documenti tecnici.')
+
     def get_queryset(self):
+        self._ensure_access('read')
         machine_id = self.kwargs.get('machine_id')
         if machine_id:
             return MachineDocument.objects.filter(machine_id=machine_id)
         return MachineDocument.objects.all()
 
     def perform_create(self, serializer):
+        self._ensure_access('write')
         user = self.request.user
-        if not user.is_superuser and not can_write_field(user, 'MachineDocument', '*'):
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied('Non hai i permessi per caricare documenti tecnici.')
         machine_id = self.kwargs.get('machine_id')
         machine = get_object_or_404(Machine, pk=machine_id)
         serializer.save(
@@ -179,6 +189,10 @@ class MachineDocumentViewSet(viewsets.ModelViewSet):
             nome_file=self.request.FILES.get('file', '').name if self.request.FILES.get('file') else ''
         )
 
+    def perform_destroy(self, instance):
+        self._ensure_access('write')
+        instance.delete()
+
 
 class MachineAdminDocumentViewSet(viewsets.ModelViewSet):
     """ViewSet per i documenti amministrativi"""
@@ -186,17 +200,26 @@ class MachineAdminDocumentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, HasFieldPermission]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
+    def _ensure_access(self, action):
+        user = self.request.user
+        if not can_access_document_model(user, 'MachineAdminDocument', action):
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied('Non hai i permessi per accedere ai documenti amministrativi.')
+
     def get_queryset(self):
+        self._ensure_access('read')
         machine_id = self.kwargs.get('machine_id')
         if machine_id:
             return MachineAdminDocument.objects.filter(machine_id=machine_id)
         return MachineAdminDocument.objects.all()
 
     def perform_create(self, serializer):
+        self._ensure_access('write')
         user = self.request.user
-        if not user.is_superuser and not can_write_field(user, 'MachineAdminDocument', '*'):
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied('Non hai i permessi per caricare documenti amministrativi.')
         machine_id = self.kwargs.get('machine_id')
         machine = get_object_or_404(Machine, pk=machine_id)
         serializer.save(machine=machine, uploaded_by=user)
+
+    def perform_destroy(self, instance):
+        self._ensure_access('write')
+        instance.delete()

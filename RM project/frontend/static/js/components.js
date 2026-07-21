@@ -70,9 +70,6 @@ const Components = {
 
     // === RENDER MODALE DETTAGLIO MACCHINARIO ===
     renderMachineDetail(machine) {
-        const office = Auth.getUserOffice();
-        const officeCode = office ? office.code : '';
-
         let tabs = ['Generale'];
         let tabContents = [];
 
@@ -195,7 +192,7 @@ const Components = {
         }
 
         // Scheda: Documenti tecnici
-        if (Auth.hasAnyPermission('MachineDocument')) {
+        if (Auth.canViewDocumentType('tech')) {
             tabsHtml.push('Documenti Tecnici');
             const docs = machine.documents || [];
             let docsHtml = '<div class="documents-list">';
@@ -225,7 +222,7 @@ const Components = {
             }
 
             // Area di caricamento (solo per il reparto tecnico)
-            if (Auth.canWrite('MachineDocument', '*')) {
+            if (Auth.canUploadDocumentType('tech')) {
                 docsHtml += `
                     <div class="upload-area" onclick="Dashboard.showUploadForm(${machine.id}, 'tech')">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -240,7 +237,7 @@ const Components = {
         }
 
         // Scheda: Documenti amministrativi
-        if (Auth.hasAnyPermission('MachineAdminDocument')) {
+        if (Auth.canViewDocumentType('admin')) {
             tabsHtml.push('Documenti Admin');
             const adocs = machine.admin_documents || [];
             let adocsHtml = '<div class="documents-list">';
@@ -272,7 +269,7 @@ const Components = {
             }
 
             // Area di caricamento (solo per l'amministrazione)
-            if (Auth.canWrite('MachineAdminDocument', '*')) {
+            if (Auth.canUploadDocumentType('admin')) {
                 adocsHtml += `
                     <div class="upload-area" onclick="Dashboard.showUploadForm(${machine.id}, 'admin')">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -481,6 +478,10 @@ const Components = {
     // === RENDER FORM DI CARICAMENTO ===
     renderUploadForm(machineId, type) {
         const isAdmin = type === 'admin';
+        if (!Auth.canUploadDocumentType(type)) {
+            return `<div class="empty-state"><p>Non hai i permessi per caricare questo tipo di documento.</p></div>`;
+        }
+
         let html = `<form class="modal-form" id="upload-doc-form" enctype="multipart/form-data">`;
         html += `<input type="hidden" name="machine_id" value="${machineId}">`;
         html += `<input type="hidden" name="doc_type" value="${type}">`;

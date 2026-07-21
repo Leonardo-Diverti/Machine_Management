@@ -40,13 +40,19 @@ class MachineDocumentSerializer(serializers.ModelSerializer):
     tipo_documento_display = serializers.CharField(
         source='get_tipo_documento_display', read_only=True
     )
+    nome_file = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = MachineDocument
         fields = ['id', 'machine', 'tipo_documento', 'tipo_documento_display',
                   'nome_file', 'file', 'uploaded_by', 'uploaded_by_name',
                   'uploaded_at', 'note']
-        read_only_fields = ['uploaded_by', 'uploaded_by_name', 'uploaded_at']
+        read_only_fields = ['machine', 'uploaded_by', 'uploaded_by_name', 'uploaded_at']
+
+    def validate(self, attrs):
+        if 'file' in attrs and not attrs.get('nome_file'):
+            attrs['nome_file'] = attrs['file'].name
+        return attrs
 
     def get_uploaded_by_name(self, obj):
         if obj.uploaded_by:
@@ -66,7 +72,7 @@ class MachineAdminDocumentSerializer(serializers.ModelSerializer):
                   'numero_documento', 'data_documento', 'importo', 'fornitore',
                   'descrizione', 'file', 'uploaded_by', 'uploaded_by_name',
                   'uploaded_at']
-        read_only_fields = ['uploaded_by', 'uploaded_by_name', 'uploaded_at']
+        read_only_fields = ['machine', 'uploaded_by', 'uploaded_by_name', 'uploaded_at']
 
     def get_uploaded_by_name(self, obj):
         if obj.uploaded_by:
