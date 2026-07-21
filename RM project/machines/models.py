@@ -114,6 +114,7 @@ class MachineAdminDocument(models.Model):
         ('BOLLA_TRASPORTO', 'Bolla di Trasporto'),
         ('ORDINE_ACQUISTO', 'Ordine di Acquisto'),
         ('COPIA_PAGAMENTO', 'Copia Pagamento'),
+        ('PERIZIA_CONSULENTE', 'Perizia consulente'),
         ('ALTRO_ADMIN', 'Altro'),
     ]
 

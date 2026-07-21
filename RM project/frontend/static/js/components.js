@@ -238,7 +238,7 @@ const Components = {
 
         // Scheda: Documenti amministrativi
         if (Auth.canViewDocumentType('admin')) {
-            tabsHtml.push('Documenti Admin');
+            tabsHtml.push('Documenti Amministrazione');
             const adocs = machine.admin_documents || [];
             let adocsHtml = '<div class="documents-list">';
             if (adocs.length === 0) {
@@ -499,6 +499,7 @@ const Components = {
                 <option value="BOLLA_TRASPORTO">Bolla di Trasporto</option>
                 <option value="ORDINE_ACQUISTO">Ordine di Acquisto</option>
                 <option value="COPIA_PAGAMENTO">Copia Pagamento</option>
+                <option value="PERIZIA_CONSULENTE">Perizia consulente</option>
                 <option value="ALTRO_ADMIN">Altro</option>
             `;
         } else {
