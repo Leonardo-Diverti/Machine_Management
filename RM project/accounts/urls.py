@@ -1,3 +1,4 @@
+# Questo file definisce gli endpoint di autenticazione e profilo utente.
 from django.urls import path
 from . import views
 

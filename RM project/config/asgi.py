@@ -1,3 +1,4 @@
+# Questo file configura l'entry point ASGI del progetto per server asincroni.
 """
 ASGI config for config project.
 

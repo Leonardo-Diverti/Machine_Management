@@ -1,3 +1,4 @@
+# Questo file serializza i dati utente e il profilo per le API.
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Office, UserProfile, OfficeFieldPermission

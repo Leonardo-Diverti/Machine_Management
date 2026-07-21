@@ -1,3 +1,4 @@
+# Questo file registra i modelli amministrativi dell'app machines.
 from django.contrib import admin
 from .models import (Machine, MachineITData, MachineTechData,
                      MachineDocument, MachineAdminDocument, MachineStatusLog)

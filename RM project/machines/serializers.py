@@ -1,3 +1,4 @@
+# Questo file serializza i dati dei macchinari e dei documenti per le API.
 from rest_framework import serializers
 from .models import (Machine, MachineITData, MachineTechData,
                      MachineDocument, MachineAdminDocument, MachineStatusLog)

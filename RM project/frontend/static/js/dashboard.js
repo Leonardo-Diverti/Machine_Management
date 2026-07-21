@@ -1,3 +1,5 @@
+// Questo file gestisce la logica della dashboard e delle interazioni utente.
+
 /**
  * dashboard.js — Logica dashboard, pagine e interazioni
  */
@@ -6,7 +8,7 @@ const Dashboard = {
     pollingInterval: null,
     currentPage: 'dashboard',
 
-    // === INITIALIZATION ===
+    // === INIZIALIZZAZIONE ===
     async init() {
         this.setupUI();
         this.setupNavigation();
@@ -19,7 +21,7 @@ const Dashboard = {
         const user = Auth.getUser();
         const office = Auth.getUserOffice();
 
-        // User info
+        // Informazioni utente
         if (user) {
             const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username;
             document.getElementById('user-name').textContent = fullName;
@@ -27,7 +29,7 @@ const Dashboard = {
                 (user.first_name?.[0] || '') + (user.last_name?.[0] || '') || user.username[0].toUpperCase();
         }
 
-        // Office info
+        // Informazioni ufficio
         if (office) {
             document.getElementById('user-office').textContent = office.name;
             document.getElementById('office-badge-text').textContent = office.name;
@@ -36,7 +38,7 @@ const Dashboard = {
             }
         }
 
-        // Show/hide "Nuovo Macchinario" button
+        // Mostra/nasconde il pulsante "Nuovo Macchinario"
         if (Auth.canWrite('Machine', 'matricola')) {
             document.getElementById('toolbar-actions').innerHTML = `
                 <button class="btn btn-primary btn-sm" onclick="Dashboard.showCreateForm()">
@@ -47,7 +49,7 @@ const Dashboard = {
         }
     },
 
-    // === NAVIGATION ===
+    // === NAVIGAZIONE ===
     setupNavigation() {
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', (e) => {
@@ -67,17 +69,17 @@ const Dashboard = {
     },
 
     navigateTo(page) {
-        // Update nav
+        // Aggiorna la navigazione
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         const activeNav = document.querySelector(`[data-page="${page}"]`);
         if (activeNav) activeNav.classList.add('active');
 
-        // Update pages
+        // Aggiorna le pagine
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         const activePage = document.getElementById(`page-${page}`);
         if (activePage) activePage.classList.add('active');
 
-        // Update title
+        // Aggiorna il titolo
         const titles = {
             'dashboard': 'Dashboard',
             'machines': 'Macchinari',
@@ -87,34 +89,34 @@ const Dashboard = {
 
         this.currentPage = page;
 
-        // Load page data
+        // Carica i dati della pagina
         if (page === 'machines') this.loadMachinesTable();
         if (page === 'live') this.loadLiveStatus();
 
-        // Close mobile sidebar
+        // Chiude la barra laterale mobile
         document.getElementById('sidebar').classList.remove('open');
         const overlay = document.querySelector('.sidebar-overlay');
         if (overlay) overlay.classList.remove('active');
     },
 
-    // === EVENT LISTENERS ===
+    // === LISTENER DEGLI EVENTI ===
     setupEventListeners() {
-        // Search
+        // Ricerca
         let searchTimeout;
         document.getElementById('search-input').addEventListener('input', (e) => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => this.loadMachinesTable(), 300);
         });
 
-        // Filters
+        // Filtri
         document.getElementById('filter-stato').addEventListener('change', () => this.loadMachinesTable());
         document.getElementById('filter-capannone').addEventListener('change', () => this.loadMachinesTable());
 
-        // Modal close
+        // Chiusura della modale
         document.getElementById('modal-close').addEventListener('click', () => this.closeModal());
         document.getElementById('form-modal-close').addEventListener('click', () => this.closeFormModal());
 
-        // Close modals on overlay click
+        // Chiude le modali cliccando sull'overlay
         document.getElementById('machine-modal').addEventListener('click', (e) => {
             if (e.target.id === 'machine-modal') this.closeModal();
         });
@@ -122,7 +124,7 @@ const Dashboard = {
             if (e.target.id === 'form-modal') this.closeFormModal();
         });
 
-        // Mobile menu
+        // Menu mobile
         document.getElementById('mobile-menu-btn').addEventListener('click', () => {
             document.getElementById('sidebar').classList.toggle('open');
             let overlay = document.querySelector('.sidebar-overlay');
@@ -138,7 +140,7 @@ const Dashboard = {
             overlay.classList.toggle('active');
         });
 
-        // Tab switching in modals
+        // Cambio scheda nelle modali
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('tab-btn')) {
                 const tabIndex = e.target.dataset.tab;
@@ -150,7 +152,7 @@ const Dashboard = {
             }
         });
 
-        // ESC key to close modals
+        // Tasto ESC per chiudere le modali
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 this.closeModal();
@@ -159,7 +161,7 @@ const Dashboard = {
         });
     },
 
-    // === LOAD DASHBOARD ===
+    // === CARICAMENTO DASHBOARD ===
     async loadDashboard() {
         try {
             const stats = await API.getMachineStats();
@@ -168,16 +170,16 @@ const Dashboard = {
             this.animateNumber('stat-stopped', stats.ferme);
             this.animateNumber('stat-maintenance', stats.in_manutenzione);
 
-            // Recent machines
+            // Macchinari recenti
             const machinesData = await API.getMachines({ page_size: 5 });
             const machines = machinesData.results || machinesData;
             this.renderRecentMachines(machines);
 
-            // Live preview
+            // Anteprima live
             const liveData = await API.getLiveStatus();
             this.renderLivePreview(liveData);
 
-            // Populate capannone filter
+            // Popola il filtro del capannone
             this.populateCapannoneFilter(machines);
 
         } catch (err) {
@@ -237,7 +239,7 @@ const Dashboard = {
         }).join('');
     },
 
-    // === MACHINES TABLE ===
+    // === TABELLA MACCHINARI ===
     async loadMachinesTable() {
         const tbody = document.getElementById('machines-tbody');
         tbody.innerHTML = '<tr><td colspan="6" class="loading-placeholder">Caricamento...</td></tr>';
@@ -293,7 +295,7 @@ const Dashboard = {
         const currentValue = select.value;
         const capannoni = [...new Set(machines.map(m => m.capannone))].sort();
 
-        // Only update if options changed
+        // Aggiorna solo se le opzioni sono cambiate
         const existingOptions = Array.from(select.options).slice(1).map(o => o.value);
         if (JSON.stringify(capannoni) !== JSON.stringify(existingOptions)) {
             select.innerHTML = '<option value="">Tutti i capannoni</option>' +
@@ -301,7 +303,7 @@ const Dashboard = {
         }
     },
 
-    // === LIVE STATUS ===
+    // === STATO LIVE ===
     async loadLiveStatus() {
         const container = document.getElementById('live-grid');
 
@@ -384,7 +386,7 @@ const Dashboard = {
         }
     },
 
-    // === MACHINE DETAIL MODAL ===
+    // === MODALE DETTAGLIO MACCHINARIO ===
     async showMachineDetail(id) {
         const modal = document.getElementById('machine-modal');
         const body = document.getElementById('modal-body');
@@ -406,7 +408,7 @@ const Dashboard = {
         document.getElementById('machine-modal').style.display = 'none';
     },
 
-    // === FORM MODALS ===
+    // === MODALI FORM ===
     showCreateForm() {
         const modal = document.getElementById('form-modal');
         const body = document.getElementById('form-modal-body');
@@ -416,13 +418,13 @@ const Dashboard = {
         body.innerHTML = Components.renderCreateForm();
         modal.style.display = 'flex';
 
-        // Form submit
+        // Invio del form
         document.getElementById('create-machine-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData.entries());
 
-            // Clean up empty values
+            // Pulisce i valori vuoti
             if (!data.anno_avviamento) delete data.anno_avviamento;
             else data.anno_avviamento = parseInt(data.anno_avviamento);
 
@@ -453,7 +455,7 @@ const Dashboard = {
             title.textContent = `Modifica ${machine.matricola}`;
             body.innerHTML = Components.renderEditForm(machine);
 
-            // Form submit
+            // Invio del form
             document.getElementById('edit-machine-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const formData = new FormData(e.target);
@@ -462,7 +464,7 @@ const Dashboard = {
                 delete data.machine_id;
 
                 try {
-                    // Update machine base data
+                    // Aggiorna i dati base del macchinario
                     const machineData = {};
                     if (Auth.canWrite('Machine', 'matricola') && data.matricola) machineData.matricola = data.matricola;
                     if (Auth.canWrite('Machine', 'capannone') && data.capannone) machineData.capannone = data.capannone;
@@ -474,7 +476,7 @@ const Dashboard = {
                         await API.updateMachine(id, machineData);
                     }
 
-                    // Update IT data
+                    // Aggiorna i dati IT
                     const itData = {};
                     if (Auth.canWrite('MachineITData', 'tipo_accentratore') && data.tipo_accentratore !== undefined) {
                         itData.tipo_accentratore = data.tipo_accentratore || null;
@@ -490,7 +492,7 @@ const Dashboard = {
                         await API.updateITData(id, itData);
                     }
 
-                    // Update Tech data
+                    // Aggiorna i dati tecnici
                     const techData = {};
                     ['marca', 'modello', 'descrizione_tecnica', 'note_tecniche'].forEach(f => {
                         if (Auth.canWrite('MachineTechData', f) && data[f] !== undefined) {
@@ -530,7 +532,7 @@ const Dashboard = {
         body.innerHTML = Components.renderUploadForm(machineId, type);
         modal.style.display = 'flex';
 
-        // Form submit
+        // Invio del form
         document.getElementById('upload-doc-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);

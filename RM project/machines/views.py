@@ -1,3 +1,4 @@
+# Questo file implementa le view per la gestione dei macchinari e dei relativi dati.
 from rest_framework import viewsets, status, generics
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -31,7 +32,7 @@ class MachineViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         machine = serializer.save()
-        # Crea automaticamente i record IT e Tech data
+        # Crea automaticamente i record dei dati IT e tecnici
         MachineITData.objects.get_or_create(machine=machine)
         MachineTechData.objects.get_or_create(machine=machine)
 

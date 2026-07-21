@@ -1,10 +1,12 @@
+// Questo file contiene i componenti UI riutilizzabili per la dashboard.
+
 /**
  * components.js — Componenti UI riutilizzabili
  */
 
 const Components = {
 
-    // === STATUS BADGE ===
+    // === BADGE DI STATO ===
     statusBadge(stato) {
         const labels = {
             'attiva': 'Attiva',
@@ -16,7 +18,7 @@ const Components = {
         return `<span class="status-badge status-badge--${stato}"><span class="dot"></span>${label}</span>`;
     },
 
-    // === TOAST NOTIFICATIONS ===
+    // === NOTIFICHE TOAST ===
     toast(message, type = 'info') {
         const container = document.getElementById('toast-container');
         const icons = {
@@ -36,13 +38,13 @@ const Components = {
         }, 4000);
     },
 
-    // === FORMAT NUMBER ===
+    // === FORMATTA NUMERO ===
     formatNumber(num) {
         if (num === null || num === undefined) return '—';
         return new Intl.NumberFormat('it-IT').format(num);
     },
 
-    // === FORMAT DATE ===
+    // === FORMATTA DATA ===
     formatDate(dateStr) {
         if (!dateStr) return '—';
         const d = new Date(dateStr);
@@ -66,7 +68,7 @@ const Components = {
         return d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     },
 
-    // === RENDER MACHINE DETAIL MODAL ===
+    // === RENDER MODALE DETTAGLIO MACCHINARIO ===
     renderMachineDetail(machine) {
         const office = Auth.getUserOffice();
         const officeCode = office ? office.code : '';
@@ -74,7 +76,7 @@ const Components = {
         let tabs = ['Generale'];
         let tabContents = [];
 
-        // Tab: Generale (always visible)
+        // Scheda: Generale (sempre visibile)
         tabs.push('');
         let generalHtml = `
             <div class="detail-grid">
@@ -97,7 +99,7 @@ const Components = {
             </div>
         `;
 
-        // Status log section (for IT)
+        // Sezione log di stato (per IT)
         if (Auth.hasAnyPermission('MachineStatusLog')) {
             const ls = machine.latest_status;
             generalHtml += `
@@ -128,11 +130,11 @@ const Components = {
             `;
         }
 
-        // Build tabs array
+        // Costruisce l'array delle schede
         let tabsHtml = ['Generale'];
         let contentsHtml = [generalHtml];
 
-        // Tab: Dati IT (visible to IT)
+        // Scheda: Dati IT (visibile all'ufficio IT)
         if (Auth.hasAnyPermission('MachineITData')) {
             tabsHtml.push('Dati IT');
             const itd = machine.it_data || {};
@@ -158,7 +160,7 @@ const Components = {
             `);
         }
 
-        // Tab: Dati Tecnici (visible to TECH)
+        // Scheda: Dati tecnici (visibile all'ufficio tecnico)
         if (Auth.hasAnyPermission('MachineTechData')) {
             tabsHtml.push('Dati Tecnici');
             const td = machine.tech_data || {};
@@ -192,7 +194,7 @@ const Components = {
             `);
         }
 
-        // Tab: Documenti Tecnici
+        // Scheda: Documenti tecnici
         if (Auth.hasAnyPermission('MachineDocument')) {
             tabsHtml.push('Documenti Tecnici');
             const docs = machine.documents || [];
@@ -222,7 +224,7 @@ const Components = {
                 });
             }
 
-            // Upload area (only for TECH)
+            // Area di caricamento (solo per il reparto tecnico)
             if (Auth.canWrite('MachineDocument', '*')) {
                 docsHtml += `
                     <div class="upload-area" onclick="Dashboard.showUploadForm(${machine.id}, 'tech')">
@@ -237,7 +239,7 @@ const Components = {
             contentsHtml.push(docsHtml);
         }
 
-        // Tab: Documenti Amministrativi
+        // Scheda: Documenti amministrativi
         if (Auth.hasAnyPermission('MachineAdminDocument')) {
             tabsHtml.push('Documenti Admin');
             const adocs = machine.admin_documents || [];
@@ -269,7 +271,7 @@ const Components = {
                 });
             }
 
-            // Upload area (only for ADMIN)
+            // Area di caricamento (solo per l'amministrazione)
             if (Auth.canWrite('MachineAdminDocument', '*')) {
                 adocsHtml += `
                     <div class="upload-area" onclick="Dashboard.showUploadForm(${machine.id}, 'admin')">
@@ -284,7 +286,7 @@ const Components = {
             contentsHtml.push(adocsHtml);
         }
 
-        // Build final HTML
+        // Costruisce l'HTML finale
         let html = '<div class="tabs">';
         tabsHtml.forEach((tab, i) => {
             html += `<button class="tab-btn ${i === 0 ? 'active' : ''}" data-tab="${i}">${tab}</button>`;
@@ -295,7 +297,7 @@ const Components = {
             html += `<div class="tab-content ${i === 0 ? 'active' : ''}" data-tab-content="${i}">${content}</div>`;
         });
 
-        // Edit button
+        // Pulsante di modifica
         let canEditAnything = Auth.canWrite('Machine', 'matricola') ||
                               Auth.canWrite('Machine', 'capannone') ||
                               Auth.canWrite('Machine', 'anno_avviamento') ||
@@ -317,7 +319,7 @@ const Components = {
         return html;
     },
 
-    // === RENDER EDIT FORM ===
+    // === RENDER FORM DI MODIFICA ===
     renderEditForm(machine) {
         const canWriteField = (model, field) => Auth.canWrite(model, field);
         const fieldClass = (model, field) => canWriteField(model, field) ? '' : 'field-readonly';
@@ -325,7 +327,7 @@ const Components = {
         let html = '<form class="modal-form" id="edit-machine-form">';
         html += `<input type="hidden" name="machine_id" value="${machine.id}">`;
 
-        // Machine base fields
+        // Campi base del macchinario
         html += '<div class="detail-section-title">Dati Base Macchinario</div>';
         html += '<div class="form-row">';
         html += `
@@ -351,7 +353,7 @@ const Components = {
         `;
         html += '</div>';
 
-        // IT Data fields
+        // Campi dati IT
         if (Auth.hasAnyPermission('MachineITData')) {
             const itd = machine.it_data || {};
             html += '<div class="detail-section-title" style="margin-top:1.25rem;">Dati IT</div>';
@@ -380,7 +382,7 @@ const Components = {
             `;
         }
 
-        // Tech Data fields
+        // Campi dati tecnici
         if (Auth.hasAnyPermission('MachineTechData')) {
             const td = machine.tech_data || {};
             html += '<div class="detail-section-title" style="margin-top:1.25rem;">Dati Tecnici</div>';
@@ -429,7 +431,7 @@ const Components = {
         return html;
     },
 
-    // === RENDER CREATE FORM ===
+    // === RENDER FORM DI CREAZIONE ===
     renderCreateForm() {
         let html = '<form class="modal-form" id="create-machine-form">';
 
@@ -476,7 +478,7 @@ const Components = {
         return html;
     },
 
-    // === RENDER UPLOAD FORM ===
+    // === RENDER FORM DI CARICAMENTO ===
     renderUploadForm(machineId, type) {
         const isAdmin = type === 'admin';
         let html = `<form class="modal-form" id="upload-doc-form" enctype="multipart/form-data">`;

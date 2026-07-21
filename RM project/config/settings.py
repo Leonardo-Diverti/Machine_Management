@@ -1,3 +1,4 @@
+# Questo file contiene le impostazioni principali del progetto Django e della dashboard.
 """
 Django settings for config project.
 Gestionale Macchinari - Industrial Dashboard
@@ -6,11 +7,11 @@ Gestionale Macchinari - Industrial Dashboard
 from pathlib import Path
 from datetime import timedelta
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Costruisce i percorsi del progetto come BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
+# Impostazioni rapide per lo sviluppo, non adatte alla produzione
 SECRET_KEY = 'django-insecure-221)ww5#857_gs%bvazo7*b4i09i_)vlmjo%r#!&&xw5hize)f'
 
 DEBUG = True
@@ -18,7 +19,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 
-# Application definition
+# Definizione delle applicazioni
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -27,12 +28,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Third party
+    # Applicazioni di terze parti
     'rest_framework',
     'rest_framework_simplejwt',
     'django_filters',
     'corsheaders',
-    # Local apps
+    # Applicazioni locali
     'accounts',
     'machines',
     'frontend',
@@ -78,7 +79,7 @@ DATABASES = {
 }
 
 
-# Password validation
+# Validazione password
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -87,23 +88,23 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
+# Internazionalizzazione
 LANGUAGE_CODE = 'it-it'
 TIME_ZONE = 'Europe/Rome'
 USE_I18N = True
 USE_TZ = True
 
 
-# Static files
+# File statici
 STATIC_URL = 'static/'
 STATICFILES_DIRS = []
 
-# Media files (uploads)
+# File multimediali (upload)
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 
-# Default primary key field type
+# Tipo predefinito del campo chiave primaria
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 

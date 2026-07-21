@@ -1,3 +1,4 @@
+# Questo file implementa le view per login, logout e recupero del profilo utente.
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -34,7 +35,7 @@ def login_view(request):
             status=status.HTTP_403_FORBIDDEN
         )
 
-    # Genera token JWT
+    # Genera il token JWT
     refresh = RefreshToken.for_user(user)
     serializer = UserSerializer(user)
 

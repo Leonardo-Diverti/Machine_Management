@@ -1,3 +1,4 @@
+# Questo file configura l'app accounts all'interno di Django.
 from django.apps import AppConfig
 
 

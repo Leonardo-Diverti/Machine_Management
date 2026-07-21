@@ -1,3 +1,4 @@
+# Questo file contiene le regole di autorizzazione personalizzate per i permessi di campo.
 from rest_framework.permissions import BasePermission
 
 
@@ -10,10 +11,10 @@ class HasFieldPermission(BasePermission):
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
             return False
-        # Superuser ha accesso totale
+        # Il superuser ha accesso completo
         if request.user.is_superuser:
             return True
-        # Verifica che l'utente abbia un profilo con ufficio
+        # Verifica che l'utente abbia un profilo associato a un ufficio
         try:
             profile = request.user.profile
             return profile.office is not None

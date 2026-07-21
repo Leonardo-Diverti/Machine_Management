@@ -1,3 +1,4 @@
+# Questo file simula l'arrivo di dati PLC e aggiorna gli stati dei macchinari.
 """
 Simulatore PLC - Aggiorna automaticamente stati e contapezzi dei macchinari.
 
@@ -51,7 +52,7 @@ class Command(BaseCommand):
         )
         self.stdout.write('Premi Ctrl+C per fermare.\n')
 
-        # Stato interno per il contapezzi cumulativo
+        # Stato interno del contatore cumulativo
         counters = {}
 
         while True:
@@ -64,7 +65,7 @@ class Command(BaseCommand):
                     continue
 
                 for machine in machines:
-                    # Inizializza contatori se non presenti
+                    # Inizializza i contatori se non sono presenti
                     if machine.id not in counters:
                         last_log = machine.status_logs.first()
                         counters[machine.id] = {
@@ -77,20 +78,20 @@ class Command(BaseCommand):
                     motivo_fermo = None
                     orario_fermo = None
 
-                    # Logica di transizione stato
+                    # Logica di transizione dello stato
                     if current_stato == 'attiva':
-                        # 5% probabilità di fermo
+                        # Probabilità del 5% di fermo
                         if random.random() < 0.05:
                             new_stato = random.choice(['ferma', 'in_manutenzione'])
                             motivo_fermo = random.choice(MOTIVI_FERMO)
                             orario_fermo = timezone.now()
                             counters[machine.id]['fermi'] += 1
                         else:
-                            # Incrementa contapezzi (tra 5 e 50 pezzi)
+                            # Incrementa il contatore dei pezzi (tra 5 e 50)
                             counters[machine.id]['pezzi'] += random.randint(5, 50)
 
                     elif current_stato == 'ferma':
-                        # 20% probabilità di ripresa
+                        # Probabilità del 20% di ripresa
                         if random.random() < 0.20:
                             new_stato = 'attiva'
                         else:
@@ -98,19 +99,19 @@ class Command(BaseCommand):
                             orario_fermo = timezone.now()
 
                     elif current_stato == 'in_manutenzione':
-                        # 15% probabilità di tornare attiva
+                        # Probabilità del 15% di tornare attiva
                         if random.random() < 0.15:
                             new_stato = 'attiva'
                         else:
                             motivo_fermo = 'Manutenzione in corso'
                             orario_fermo = timezone.now()
 
-                    # Aggiorna stato macchina
+                    # Aggiorna lo stato della macchina
                     if new_stato != current_stato:
                         machine.stato = new_stato
                         machine.save(update_fields=['stato', 'updated_at'])
 
-                    # Crea log di stato
+                    # Crea il log di stato
                     MachineStatusLog.objects.create(
                         machine=machine,
                         stato=new_stato,

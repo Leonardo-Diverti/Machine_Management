@@ -1,3 +1,4 @@
+# Questo file gestisce le view del frontend e il rendering della dashboard.
 from django.shortcuts import render
 
 

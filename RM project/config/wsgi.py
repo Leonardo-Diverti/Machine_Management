@@ -1,3 +1,4 @@
+# Questo file configura l'entry point WSGI del progetto per il deployment web.
 """
 WSGI config for config project.
 

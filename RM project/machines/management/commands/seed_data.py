@@ -1,3 +1,4 @@
+# Questo file popola il database con dati demo, utenti e permessi iniziali.
 """
 Seed database con dati iniziali:
 - 3 Uffici (IT, Tecnico, Amministrazione)
@@ -127,7 +128,7 @@ class Command(BaseCommand):
                 defaults={'office': office}
             )
 
-        # Crea superuser se non esiste
+        # Crea il superuser se non esiste
         if not User.objects.filter(is_superuser=True).exists():
             superuser = User.objects.create_superuser(
                 username='superadmin',

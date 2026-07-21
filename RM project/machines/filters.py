@@ -1,3 +1,4 @@
+# Questo file definisce i filtri di ricerca usati dalle API dei macchinari.
 import django_filters
 from .models import Machine
 

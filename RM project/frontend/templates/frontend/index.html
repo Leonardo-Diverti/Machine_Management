@@ -1,3 +1,5 @@
+<!-- Questo file contiene la struttura HTML della pagina principale dell'applicazione. -->
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="it">
@@ -13,7 +15,7 @@
 </head>
 <body>
 
-    <!-- ============ LOGIN SCREEN ============ -->
+    <!-- ============ SCHERMATA DI ACCESSO ============ -->
     <div id="login-screen" class="login-screen">
         <div class="login-bg-pattern"></div>
         <div class="login-container">
@@ -64,10 +66,10 @@
         </div>
     </div>
 
-    <!-- ============ MAIN APP ============ -->
+    <!-- ============ APPLICAZIONE PRINCIPALE ============ -->
     <div id="app" class="app" style="display:none;">
 
-        <!-- Sidebar -->
+        <!-- Barra laterale -->
         <aside id="sidebar" class="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-logo">
@@ -118,9 +120,9 @@
             </div>
         </aside>
 
-        <!-- Main Content -->
+        <!-- Contenuto principale -->
         <main class="main-content">
-            <!-- Top Bar -->
+            <!-- Barra superiore -->
             <header class="topbar">
                 <div class="topbar-left">
                     <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Menu">
@@ -140,12 +142,12 @@
                 </div>
             </header>
 
-            <!-- Page Container -->
+            <!-- Contenitore pagina -->
             <div class="page-container">
 
-                <!-- ===== DASHBOARD PAGE ===== -->
+                <!-- ===== PAGINA DASHBOARD ===== -->
                 <div id="page-dashboard" class="page active">
-                    <!-- Stats Cards -->
+                    <!-- Schede statistiche -->
                     <div class="stats-grid" id="stats-grid">
                         <div class="stat-card stat-card--total">
                             <div class="stat-icon">
@@ -185,7 +187,7 @@
                         </div>
                     </div>
 
-                    <!-- Recent Machines Quick View -->
+                    <!-- Vista rapida dei macchinari recenti -->
                     <div class="dashboard-grid">
                         <div class="card">
                             <div class="card-header">
@@ -212,9 +214,9 @@
                     </div>
                 </div>
 
-                <!-- ===== MACHINES PAGE ===== -->
+                <!-- ===== PAGINA MACCHINARI ===== -->
                 <div id="page-machines" class="page">
-                    <!-- Toolbar -->
+                    <!-- Barra degli strumenti -->
                     <div class="page-toolbar">
                         <div class="toolbar-filters">
                             <div class="search-box">
@@ -237,7 +239,7 @@
                         </div>
                     </div>
 
-                    <!-- Machines Table -->
+                    <!-- Tabella dei macchinari -->
                     <div class="table-container">
                         <table class="data-table" id="machines-table">
                             <thead>
@@ -257,7 +259,7 @@
                     </div>
                 </div>
 
-                <!-- ===== LIVE STATUS PAGE ===== -->
+                <!-- ===== PAGINA STATO LIVE ===== -->
                 <div id="page-live" class="page">
                     <div class="live-grid" id="live-grid">
                         <div class="loading-placeholder">Caricamento stato live...</div>
@@ -268,7 +270,7 @@
         </main>
     </div>
 
-    <!-- ============ MACHINE DETAIL MODAL ============ -->
+    <!-- ============ MODALE DETTAGLIO MACCHINARIO ============ -->
     <div id="machine-modal" class="modal-overlay" style="display:none;">
         <div class="modal">
             <div class="modal-header">
@@ -283,7 +285,7 @@
         </div>
     </div>
 
-    <!-- ============ CREATE/EDIT FORM MODAL ============ -->
+    <!-- ============ MODALE FORM CREAZIONE/MODIFICA ============ -->
     <div id="form-modal" class="modal-overlay" style="display:none;">
         <div class="modal modal--form">
             <div class="modal-header">
@@ -298,10 +300,10 @@
         </div>
     </div>
 
-    <!-- ============ TOAST NOTIFICATIONS ============ -->
+    <!-- ============ NOTIFICHE TOAST ============ -->
     <div id="toast-container" class="toast-container"></div>
 
-    <!-- Scripts -->
+    <!-- Script -->
     <script src="{% static 'js/auth.js' %}"></script>
     <script src="{% static 'js/api.js' %}"></script>
     <script src="{% static 'js/components.js' %}"></script>

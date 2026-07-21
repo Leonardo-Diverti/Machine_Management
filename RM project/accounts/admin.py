@@ -1,3 +1,4 @@
+# Questo file registra i modelli amministrativi dell'app accounts.
 from django.contrib import admin
 from .models import Office, UserProfile, OfficeFieldPermission
 

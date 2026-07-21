@@ -1,3 +1,5 @@
+// Questo file gestisce l'autenticazione JWT e la sessione utente nel browser.
+
 /**
  * auth.js — Gestione autenticazione JWT
  */
@@ -59,7 +61,7 @@ const Auth = {
         const perms = this.getUserPermissions();
         if (!perms[modelName]) return false;
 
-        // Check wildcard
+        // Controlla il carattere jolly
         if (perms[modelName]['*'] === 'WRITE') return true;
 
         return perms[modelName][fieldName] === 'WRITE';
@@ -107,7 +109,7 @@ const Auth = {
         if (response.ok) {
             const userData = await response.json();
             const user = this.getUser();
-            // Merge permissions from profile
+            // Unisce i permessi dal profilo
             localStorage.setItem(this.USER_KEY, JSON.stringify(userData));
             return userData;
         }

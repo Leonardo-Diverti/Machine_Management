@@ -1,3 +1,4 @@
+# Questo file avvia il progetto Django e lancia il comando di gestione.
 #!/usr/bin/env python
 """Django's command-line utility for administrative tasks."""
 import os

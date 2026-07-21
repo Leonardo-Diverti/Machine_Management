@@ -1,3 +1,4 @@
+# Questo file definisce i routing globali dell'applicazione e degli endpoint API.
 """
 URL configuration for config project.
 """
@@ -13,6 +14,6 @@ urlpatterns = [
     path('', include('frontend.urls')),
 ]
 
-# Serve media files in development
+# Serve i file multimediali in fase di sviluppo
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

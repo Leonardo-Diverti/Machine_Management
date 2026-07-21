@@ -1,3 +1,5 @@
+// Questo file avvia l'applicazione frontend e gestisce il flusso di login/logout.
+
 /**
  * app.js — Entry point, routing e inizializzazione
  */
@@ -12,7 +14,7 @@
     const loginBtn = document.getElementById('login-btn');
     const logoutBtn = document.getElementById('logout-btn');
 
-    // === CHECK AUTH STATE ===
+    // === VERIFICA STATO AUTENTICAZIONE ===
     function checkAuth() {
         if (Auth.isAuthenticated()) {
             showApp();
@@ -33,13 +35,13 @@
         Dashboard.init();
     }
 
-    // === LOGIN ===
+    // === ACCESSO ===
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const username = document.getElementById('login-username').value;
         const password = document.getElementById('login-password').value;
 
-        // Show loading
+        // Mostra il caricamento
         loginBtn.querySelector('.btn-text').style.display = 'none';
         loginBtn.querySelector('.btn-loader').style.display = 'inline-flex';
         loginBtn.disabled = true;
@@ -52,7 +54,7 @@
             loginError.textContent = err.message;
             loginError.style.display = 'block';
 
-            // Shake animation
+            // Animazione di vibrazione
             loginError.style.animation = 'none';
             loginError.offsetHeight; // Trigger reflow
             loginError.style.animation = 'fadeIn 0.3s ease';
@@ -63,17 +65,17 @@
         }
     });
 
-    // === LOGOUT ===
+    // === DISCONNESSIONE ===
     logoutBtn.addEventListener('click', () => {
         Auth.logout();
         showLogin();
         Components.toast('Logout effettuato.', 'info');
 
-        // Reset form
+        // Reimposta il form
         loginForm.reset();
         loginError.style.display = 'none';
     });
 
-    // === INIT ===
+    // === INIZIALIZZAZIONE ===
     checkAuth();
 })();

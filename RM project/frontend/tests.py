@@ -1,3 +1,4 @@
+# Questo file contiene i test dell'app frontend.
 from django.test import TestCase
 
-# Create your tests here.
+# Crea i test qui.

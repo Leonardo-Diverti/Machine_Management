@@ -1,3 +1,4 @@
+# Questo file definisce i modelli dei macchinari, dati IT, tecnici e log di stato.
 from django.db import models
 from django.contrib.auth.models import User
 
