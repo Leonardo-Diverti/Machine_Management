@@ -11,7 +11,7 @@ from datetime import timedelta
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Impostazioni rapide per lo sviluppo, non adatte alla produzione
+# Impostazioni rapide per lo sviluppo
 SECRET_KEY = 'django-insecure-221)ww5#857_gs%bvazo7*b4i09i_)vlmjo%r#!&&xw5hize)f'
 
 DEBUG = True
