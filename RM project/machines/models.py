@@ -12,7 +12,8 @@ class Machine(models.Model):
         ('dismessa', 'Dismessa'),
     ]
 
-    matricola = models.CharField(max_length=100, blank=True, null=True, verbose_name="Matricola")
+    cdl = models.CharField(max_length=50, blank=True, null=True, verbose_name="CDL")
+    cc = models.CharField(max_length=50, blank=True, null=True, verbose_name="CC")
     capannone = models.CharField(max_length=50, verbose_name="Capannone")
     anno_avviamento = models.IntegerField(blank=True, null=True, verbose_name="Anno di Avviamento")
     stato = models.CharField(max_length=20, choices=STATO_CHOICES, default='attiva',
@@ -23,10 +24,10 @@ class Machine(models.Model):
     class Meta:
         verbose_name = "Macchinario"
         verbose_name_plural = "Macchinari"
-        ordering = ['matricola']
+        ordering = ['cdl', 'cc']
 
     def __str__(self):
-        return f"{self.matricola} - {self.capannone}"
+       return f"CDL: {self.cdl} | CC: {self.cc} - {self.capannone}"
 
 
 class MachineITData(models.Model):
@@ -53,7 +54,7 @@ class MachineITData(models.Model):
         verbose_name_plural = "Dati IT Macchinari"
 
     def __str__(self):
-        return f"IT Data: {self.machine.matricola}"
+        return f"IT Data: {self.machine.cdl} - {self.machine.cc}"
 
 
 class MachineTechData(models.Model):
@@ -75,7 +76,7 @@ class MachineTechData(models.Model):
         verbose_name_plural = "Dati Tecnici Macchinari"
 
     def __str__(self):
-        return f"Tech Data: {self.machine.matricola}"
+        return f"Tech Data: CDL {self.machine.cdl} / CC {self.machine.cc}"
 
 
 class MachineDocument(models.Model):
@@ -104,7 +105,7 @@ class MachineDocument(models.Model):
         ordering = ['-uploaded_at']
 
     def __str__(self):
-        return f"{self.get_tipo_documento_display()} - {self.machine.matricola}"
+        return f"{self.get_tipo_documento_display()} - CDL {self.machine.cdl} / CC {self.machine.cc}"
 
 
 class MachineAdminDocument(models.Model):
@@ -140,7 +141,7 @@ class MachineAdminDocument(models.Model):
         ordering = ['-data_documento']
 
     def __str__(self):
-        return f"{self.get_tipo_documento_display()} {self.numero_documento} - {self.machine.matricola}"
+        return f"{self.get_tipo_documento_display()} {self.numero_documento} - CDL {self.machine.cdl} / CC {self.machine.cc}"
 
 
 class MachineStatusLog(models.Model):
@@ -160,4 +161,4 @@ class MachineStatusLog(models.Model):
         ordering = ['-timestamp']
 
     def __str__(self):
-        return f"{self.machine.matricola} - {self.stato} @ {self.timestamp}"
+        return f"CDL {self.machine.cdl} / CC {self.machine.cc} - {self.stato} @ {self.timestamp}"

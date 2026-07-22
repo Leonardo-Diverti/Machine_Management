@@ -6,11 +6,13 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.shortcuts import get_object_or_404
 
+from accounts.permissions import get_user_office_code
 from accounts.permissions import (
     HasFieldPermission,
     get_user_field_permissions,
     can_write_field,
     can_access_document_model,
+    get_user_office_code,
 )
 
 from .models import (Machine, MachineITData, MachineTechData,
@@ -27,8 +29,16 @@ class MachineViewSet(viewsets.ModelViewSet):
     queryset = Machine.objects.all().select_related('it_data', 'tech_data')
     permission_classes = [IsAuthenticated, HasFieldPermission]
     filterset_class = MachineFilter
-    search_fields = ['matricola', 'capannone']
-    ordering_fields = ['matricola', 'capannone', 'anno_avviamento', 'stato', 'updated_at']
+    search_fields = ['cdl', 'cc', 'capannone']
+    ordering_fields = ['cdl', 'cc', 'capannone', 'anno_avviamento', 'stato', 'updated_at']
+
+    def create(self, request, *args, **kwargs):
+        """Blocca la creazione se l'utente non è dell'Ufficio Tecnico o Superuser"""
+        if not request.user.is_superuser:
+            if get_user_office_code(request.user) != 'TECH':
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied("Solo l'Ufficio Tecnico può creare nuovi macchinari.")
+        return super().create(request, *args, **kwargs)
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -80,7 +90,8 @@ class MachineViewSet(viewsets.ModelViewSet):
             latest_log = machine.status_logs.first()
             data = {
                 'id': machine.id,
-                'matricola': machine.matricola,
+                'cdl': machine.cdl,
+                'cc': machine.cc,
                 'capannone': machine.capannone,
                 'stato': machine.stato,
                 'pezzi_buoni': latest_log.pezzi_buoni if latest_log else 0,

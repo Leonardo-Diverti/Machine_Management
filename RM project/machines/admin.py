@@ -16,9 +16,9 @@ class MachineTechDataInline(admin.StackedInline):
 
 @admin.register(Machine)
 class MachineAdmin(admin.ModelAdmin):
-    list_display = ('matricola', 'capannone', 'anno_avviamento', 'stato', 'updated_at')
+    list_display = ('cdl', 'cc', 'capannone', 'anno_avviamento', 'stato', 'updated_at')
     list_filter = ('stato', 'capannone')
-    search_fields = ('matricola', 'capannone')
+    search_fields = ('cdl', 'cc', 'capannone')
     inlines = [MachineITDataInline, MachineTechDataInline]
 
 

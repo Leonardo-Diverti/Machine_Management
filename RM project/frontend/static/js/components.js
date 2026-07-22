@@ -78,8 +78,12 @@ const Components = {
         let generalHtml = `
             <div class="detail-grid">
                 <div class="detail-item">
-                    <span class="detail-label">Matricola</span>
-                    <span class="detail-value">${machine.matricola}</span>
+                    <span class="detail-label">CDL</span>
+                    <span class="detail-value">${machine.cdl || '-'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">CC</span>
+                    <span class="detail-value">${machine.cc || '-'}</span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">Stato</span>
@@ -295,7 +299,8 @@ const Components = {
         });
 
         // Pulsante di modifica
-        let canEditAnything = Auth.canWrite('Machine', 'matricola') ||
+        let canEditAnything = Auth.canWrite('Machine', 'cdl') ||
+                              Auth.canWrite('Machine', 'cc') ||
                               Auth.canWrite('Machine', 'capannone') ||
                               Auth.canWrite('Machine', 'anno_avviamento') ||
                               Auth.canWrite('MachineITData', 'tipo_accentratore') ||
@@ -328,9 +333,13 @@ const Components = {
         html += '<div class="detail-section-title">Dati Base Macchinario</div>';
         html += '<div class="form-row">';
         html += `
-            <div class="form-group ${fieldClass('Machine', 'matricola')}">
-                <label>Matricola</label>
-                <input type="text" name="matricola" value="${machine.matricola || ''}" ${!canWriteField('Machine', 'matricola') ? 'readonly' : ''}>
+            <div class="form-group ${fieldClass('Machine', 'cdl')}">
+                <label>CDL</label>
+                <input type="text" name="cdl" value="${machine.cdl || ''}" ${!canWriteField('Machine', 'cdl') ? 'readonly' : ''}>
+            </div>
+            <div class="form-group ${fieldClass('Machine', 'cc')}">
+                <label>CC</label>
+                <input type="text" name="cc" value="${machine.cc || ''}" ${!canWriteField('Machine', 'cc') ? 'readonly' : ''}>
             </div>
             <div class="form-group ${fieldClass('Machine', 'capannone')}">
                 <label>Capannone</label>
@@ -434,9 +443,13 @@ const Components = {
 
         html += '<div class="form-row">';
         html += `
+           <div class="form-group">
+                <label>CDL *</label>
+                <input type="text" name="cdl" required placeholder="Es. CDL-01">
+            </div>
             <div class="form-group">
-                <label>Matricola *</label>
-                <input type="text" name="matricola" required placeholder="Es. CNC-001">
+                <label>CC *</label>
+                <input type="text" name="cc" required placeholder="Es. CC-100">
             </div>
             <div class="form-group">
                 <label>Capannone *</label>

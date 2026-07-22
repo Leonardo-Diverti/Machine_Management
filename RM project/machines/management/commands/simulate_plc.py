@@ -48,7 +48,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         interval = options['interval']
         self.stdout.write(
-            self.style.SUCCESS(f'🏭 Simulatore PLC avviato (intervallo: {interval}s)')
+            self.style.SUCCESS(f'Simulatore PLC avviato (intervallo: {interval}s)')
         )
         self.stdout.write('Premi Ctrl+C per fermare.\n')
 

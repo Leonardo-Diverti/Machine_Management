@@ -39,7 +39,7 @@ const Dashboard = {
         }
 
         // Mostra/nasconde il pulsante "Nuovo Macchinario"
-        if (Auth.canWrite('Machine', 'matricola')) {
+        if (Auth.isTechnicalOffice() || (Auth.getUser() && Auth.getUser().is_superuser)) {
             document.getElementById('toolbar-actions').innerHTML = `
                 <button class="btn btn-primary btn-sm" onclick="Dashboard.showCreateForm()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -213,7 +213,7 @@ const Dashboard = {
             <div class="mini-machine-item" onclick="Dashboard.showMachineDetail(${m.id})">
                 <div class="mini-machine-info">
                     ${Components.statusBadge(m.stato)}
-                    <span class="mini-machine-matricola">${m.matricola}</span>
+                    <span class="mini-machine-matricola">${m.cdl || ''} - ${m.cc || ''}</span>
                 </div>
                 <span class="mini-machine-capannone">${m.capannone}</span>
             </div>
@@ -232,7 +232,7 @@ const Dashboard = {
             return `
                 <div class="live-mini-card">
                     <span class="status-dot" style="background:${dotColor};"></span>
-                    <span class="matricola">${m.matricola}</span>
+                    <span class="matricola">${m.cdl || ''} ${m.cc || ''}</span>
                     <span class="pezzi">${Components.formatNumber(m.pezzi_buoni)} pz</span>
                 </div>
             `;
@@ -242,7 +242,7 @@ const Dashboard = {
     // === TABELLA MACCHINARI ===
     async loadMachinesTable() {
         const tbody = document.getElementById('machines-tbody');
-        tbody.innerHTML = '<tr><td colspan="6" class="loading-placeholder">Caricamento...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="loading-placeholder">Caricamento...</td></tr>';
 
         try {
             const params = {};
@@ -258,7 +258,7 @@ const Dashboard = {
             const machines = data.results || data;
 
             if (!machines || machines.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="loading-placeholder">Nessun macchinario trovato.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="loading-placeholder">Nessun macchinario trovato.</td></tr>';
                 return;
             }
 
@@ -267,7 +267,8 @@ const Dashboard = {
                 const showPezzi = Auth.hasAnyPermission('MachineStatusLog');
                 return `
                     <tr>
-                        <td><strong>${m.matricola}</strong></td>
+                        <td><strong>${m.cdl || '-'}</strong></td>
+                        <td><strong>${m.cc || '-'}</strong></td>
                         <td>${m.capannone}</td>
                         <td>${m.anno_avviamento || '—'}</td>
                         <td>${Components.statusBadge(m.stato)}</td>
@@ -286,7 +287,7 @@ const Dashboard = {
             this.populateCapannoneFilter(machines);
 
         } catch (err) {
-            tbody.innerHTML = `<tr><td colspan="6" class="loading-placeholder">Errore: ${err.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="loading-placeholder">Errore: ${err.message}</td></tr>`;
         }
     },
 
@@ -318,7 +319,7 @@ const Dashboard = {
             container.innerHTML = data.map(m => `
                 <div class="live-card live-card--${m.stato}" onclick="Dashboard.showMachineDetail(${m.id})">
                     <div class="live-card-header">
-                        <span class="live-card-title">${m.matricola}</span>
+                        <span class="live-card-title">${m.cdl || ''} / ${m.cc || ''}</span>
                         ${Components.statusBadge(m.stato)}
                     </div>
                     <div class="live-card-body">
@@ -397,7 +398,7 @@ const Dashboard = {
 
         try {
             const machine = await API.getMachine(id);
-            title.textContent = `${machine.matricola} — ${machine.capannone}`;
+            title.textContent = `CDL: ${machine.cdl || '-'} | CC: ${machine.cc || '-'} - ${machine.capannone}`;
             body.innerHTML = Components.renderMachineDetail(machine);
         } catch (err) {
             body.innerHTML = `<div class="empty-state"><p>Errore: ${err.message}</p></div>`;
@@ -452,7 +453,7 @@ const Dashboard = {
 
         try {
             const machine = await API.getMachine(machineId);
-            title.textContent = `Modifica ${machine.matricola}`;
+            title.textContent = `Modifica ${machine.cdl || ''} - ${machine.cc || ''}`;
             body.innerHTML = Components.renderEditForm(machine);
 
             // Invio del form
@@ -466,7 +467,8 @@ const Dashboard = {
                 try {
                     // Aggiorna i dati base del macchinario
                     const machineData = {};
-                    if (Auth.canWrite('Machine', 'matricola') && data.matricola) machineData.matricola = data.matricola;
+                    if (Auth.canWrite('Machine', 'cdl') && data.cdl !== undefined) machineData.cdl = data.cdl;
+                    if (Auth.canWrite('Machine', 'cc') && data.cc !== undefined) machineData.cc = data.cc;
                     if (Auth.canWrite('Machine', 'capannone') && data.capannone) machineData.capannone = data.capannone;
                     if (Auth.canWrite('Machine', 'anno_avviamento')) {
                         machineData.anno_avviamento = data.anno_avviamento ? parseInt(data.anno_avviamento) : null;

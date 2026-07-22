@@ -94,7 +94,7 @@ class MachineListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Machine
-        fields = ['id', 'matricola', 'capannone', 'anno_avviamento', 'stato',
+        fields = ['id', 'cdl','cc', 'capannone', 'anno_avviamento', 'stato',
                   'stato_display', 'created_at', 'updated_at', 'latest_status']
 
     def get_latest_status(self, obj):
@@ -116,7 +116,7 @@ class MachineDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Machine
-        fields = ['id', 'matricola', 'capannone', 'anno_avviamento', 'stato',
+        fields = ['id', 'cdl', 'cc', 'capannone', 'anno_avviamento', 'stato',
                   'stato_display', 'created_at', 'updated_at',
                   'it_data', 'tech_data', 'documents', 'admin_documents',
                   'latest_status', 'recent_logs']
