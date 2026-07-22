@@ -11,10 +11,8 @@ from accounts.permissions import (
     HasFieldPermission,
     get_user_field_permissions,
     can_write_field,
-    can_access_document_model,
-    get_user_office_code,
+    can_access_document_model
 )
-
 from .models import (Machine, MachineITData, MachineTechData,
                      MachineDocument, MachineAdminDocument, MachineStatusLog)
 from .serializers import (MachineListSerializer, MachineDetailSerializer,
@@ -22,7 +20,6 @@ from .serializers import (MachineListSerializer, MachineDetailSerializer,
                           MachineDocumentSerializer, MachineAdminDocumentSerializer,
                           MachineStatusLogSerializer)
 from .filters import MachineFilter
-
 
 class MachineViewSet(viewsets.ModelViewSet):
     """ViewSet per macchinari con RBAC"""

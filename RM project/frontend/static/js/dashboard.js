@@ -38,14 +38,19 @@ const Dashboard = {
             }
         }
 
-        // Mostra/nasconde il pulsante "Nuovo Macchinario"
+ // Mostra/nasconde il pulsante "Nuovo Macchinario"
+        const toolbarActions = document.getElementById('toolbar-actions');
+        
         if (Auth.isTechnicalOffice() || (Auth.getUser() && Auth.getUser().is_superuser)) {
-            document.getElementById('toolbar-actions').innerHTML = `
+            toolbarActions.innerHTML = `
                 <button class="btn btn-primary btn-sm" onclick="Dashboard.showCreateForm()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     Nuovo Macchinario
                 </button>
             `;
+        } else {
+            // Rimuove esplicitamente il bottone per gli uffici non autorizzati
+            toolbarActions.innerHTML = ''; 
         }
     },
 
@@ -366,6 +371,11 @@ const Dashboard = {
                     this.animateNumber('stat-active', stats.attive);
                     this.animateNumber('stat-stopped', stats.ferme);
                     this.animateNumber('stat-maintenance', stats.in_manutenzione);
+
+                    // Aggiunta: Aggiorna anche i macchinari recenti in tempo reale
+                    const machinesData = await API.getMachines({ page_size: 5 });
+                    const machines = machinesData.results || machinesData;
+                    this.renderRecentMachines(machines);
 
                     const liveData = await API.getLiveStatus();
                     this.renderLivePreview(liveData);

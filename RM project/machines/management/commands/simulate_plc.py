@@ -131,7 +131,7 @@ class Command(BaseCommand):
                 time.sleep(interval)
 
             except KeyboardInterrupt:
-                self.stdout.write(self.style.SUCCESS('\n🛑 Simulatore PLC fermato.'))
+                self.stdout.write(self.style.SUCCESS('\nSimulatore PLC fermato.'))
                 break
             except Exception as e:
                 self.stdout.write(self.style.ERROR(f'Errore: {e}'))
