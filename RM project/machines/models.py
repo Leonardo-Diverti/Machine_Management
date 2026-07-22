@@ -12,7 +12,8 @@ class Machine(models.Model):
         ('dismessa', 'Dismessa'),
     ]
 
-    matricola = models.CharField(max_length=50, unique=True, verbose_name="Matricola")
+    cdl = models.CharField(max_length=100, blank=True, null=True, verbose_name="CDL")
+    cc = models.CharField(max_length=100, blank=True, null=True, verbose_name="CC")
     capannone = models.CharField(max_length=50, verbose_name="Capannone")
     anno_avviamento = models.IntegerField(blank=True, null=True, verbose_name="Anno di Avviamento")
     stato = models.CharField(max_length=20, choices=STATO_CHOICES, default='attiva',
