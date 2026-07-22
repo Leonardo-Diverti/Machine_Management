@@ -1,8 +1,6 @@
-# Questo file serializza i dati dei macchinari e dei documenti per le API.
 from rest_framework import serializers
 from .models import (Machine, MachineITData, MachineTechData,
                      MachineDocument, MachineAdminDocument, MachineStatusLog)
-
 
 class MachineITDataSerializer(serializers.ModelSerializer):
     updated_by_name = serializers.SerializerMethodField()
@@ -18,7 +16,6 @@ class MachineITDataSerializer(serializers.ModelSerializer):
             return obj.updated_by.get_full_name() or obj.updated_by.username
         return None
 
-
 class MachineTechDataSerializer(serializers.ModelSerializer):
     updated_by_name = serializers.SerializerMethodField()
 
@@ -33,7 +30,6 @@ class MachineTechDataSerializer(serializers.ModelSerializer):
         if obj.updated_by:
             return obj.updated_by.get_full_name() or obj.updated_by.username
         return None
-
 
 class MachineDocumentSerializer(serializers.ModelSerializer):
     uploaded_by_name = serializers.SerializerMethodField()
@@ -59,7 +55,6 @@ class MachineDocumentSerializer(serializers.ModelSerializer):
             return obj.uploaded_by.get_full_name() or obj.uploaded_by.username
         return None
 
-
 class MachineAdminDocumentSerializer(serializers.ModelSerializer):
     uploaded_by_name = serializers.SerializerMethodField()
     tipo_documento_display = serializers.CharField(
@@ -79,56 +74,26 @@ class MachineAdminDocumentSerializer(serializers.ModelSerializer):
             return obj.uploaded_by.get_full_name() or obj.uploaded_by.username
         return None
 
-
 class MachineStatusLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = MachineStatusLog
         fields = ['id', 'machine', 'stato', 'pezzi_buoni', 'fermi_macchina',
                   'orario_fermo', 'motivo_fermo', 'timestamp']
 
-
 class MachineListSerializer(serializers.ModelSerializer):
-    latest_status = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Machine
-        # Assicurati che i campi riflettano i tuoi modelli (cdl e cc)
-        fields = ['id', 'cdl', 'cc', 'capannone', 'anno_avviamento', 'stato', 'latest_status']
-
-    def get_latest_status(self, obj):
-        # Prende i pezzi buoni dall'ultimo log assoluto
-        latest = obj.status_logs.first()
-        if latest:
-            data = MachineStatusLogSerializer(latest).data
-            
-            # Cerca a ritroso l'ultimo vero e proprio fermo registrato
-            last_fermo = obj.status_logs.exclude(motivo_fermo__isnull=True).exclude(motivo_fermo='').first()
-            if last_fermo:
-                data['orario_fermo'] = last_fermo.orario_fermo
-                data['motivo_fermo'] = last_fermo.motivo_fermo
-            else:
-                data['orario_fermo'] = None
-                data['motivo_fermo'] = None
-                
-            return data
-        return None
-    
-    """Serializer per la lista macchinari con ultimo stato"""
     latest_status = serializers.SerializerMethodField()
     stato_display = serializers.CharField(source='get_stato_display', read_only=True)
 
     class Meta:
         model = Machine
-        fields = ['id', 'cdl','cc', 'capannone', 'anno_avviamento', 'stato',
+        fields = ['id', 'cdl', 'cc', 'capannone', 'anno_avviamento', 'stato',
                   'stato_display', 'created_at', 'updated_at', 'latest_status']
 
-def get_latest_status(self, obj):
-        # Prende i pezzi buoni dall'ultimo log assoluto
+    def get_latest_status(self, obj):
         latest = obj.status_logs.first()
         if latest:
             data = MachineStatusLogSerializer(latest).data
             
-            # Cerca a ritroso l'ultimo vero e proprio fermo registrato
             last_fermo = obj.status_logs.exclude(motivo_fermo__isnull=True).exclude(motivo_fermo='').first()
             if last_fermo:
                 data['orario_fermo'] = last_fermo.orario_fermo
@@ -140,9 +105,7 @@ def get_latest_status(self, obj):
             return data
         return None
 
-
 class MachineDetailSerializer(serializers.ModelSerializer):
-    """Serializer completo per il dettaglio macchinario"""
     it_data = MachineITDataSerializer(read_only=True)
     tech_data = MachineTechDataSerializer(read_only=True)
     documents = MachineDocumentSerializer(many=True, read_only=True)
@@ -161,7 +124,17 @@ class MachineDetailSerializer(serializers.ModelSerializer):
     def get_latest_status(self, obj):
         latest = obj.status_logs.first()
         if latest:
-            return MachineStatusLogSerializer(latest).data
+            data = MachineStatusLogSerializer(latest).data
+            
+            last_fermo = obj.status_logs.exclude(motivo_fermo__isnull=True).exclude(motivo_fermo='').first()
+            if last_fermo:
+                data['orario_fermo'] = last_fermo.orario_fermo
+                data['motivo_fermo'] = last_fermo.motivo_fermo
+            else:
+                data['orario_fermo'] = None
+                data['motivo_fermo'] = None
+                
+            return data
         return None
 
     def get_recent_logs(self, obj):
