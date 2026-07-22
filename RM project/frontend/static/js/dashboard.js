@@ -1,14 +1,8 @@
 // Questo file gestisce la logica della dashboard e delle interazioni utente.
-
-/**
- * dashboard.js — Logica dashboard, pagine e interazioni
- */
-
 const Dashboard = {
     pollingInterval: null,
     currentPage: 'dashboard',
 
-    // === INIZIALIZZAZIONE ===
     async init() {
         this.setupUI();
         this.setupNavigation();
@@ -20,16 +14,12 @@ const Dashboard = {
     setupUI() {
         const user = Auth.getUser();
         const office = Auth.getUserOffice();
-
-        // Informazioni utente
         if (user) {
             const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username;
             document.getElementById('user-name').textContent = fullName;
             document.getElementById('user-avatar').textContent =
                 (user.first_name?.[0] || '') + (user.last_name?.[0] || '') || user.username[0].toUpperCase();
         }
-
-        // Informazioni ufficio
         if (office) {
             document.getElementById('user-office').textContent = office.name;
             document.getElementById('office-badge-text').textContent = office.name;
@@ -37,11 +27,8 @@ const Dashboard = {
                 document.getElementById('office-dot').style.background = office.color;
             }
         }
-
- // Mostra/nasconde il pulsante "Nuovo Macchinario"
         const toolbarActions = document.getElementById('toolbar-actions');
-        
-        if (Auth.isTechnicalOffice() || (Auth.getUser() && Auth.getUser().is_superuser)) {
+        if (Auth.isTechnicalOffice() || (user && user.is_superuser)) {
             toolbarActions.innerHTML = `
                 <button class="btn btn-primary btn-sm" onclick="Dashboard.showCreateForm()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -49,79 +36,64 @@ const Dashboard = {
                 </button>
             `;
         } else {
-            // Rimuove esplicitamente il bottone per gli uffici non autorizzati
-            toolbarActions.innerHTML = ''; 
+            toolbarActions.innerHTML = '';
         }
     },
 
-    // === NAVIGAZIONE ===
     setupNavigation() {
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
-                const page = item.dataset.page;
-                this.navigateTo(page);
+                this.navigateTo(item.dataset.page);
             });
         });
-
         document.querySelectorAll('.card-link').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                const page = link.dataset.page;
-                this.navigateTo(page);
+                this.navigateTo(link.dataset.page);
             });
         });
     },
 
     navigateTo(page) {
-        // Aggiorna la navigazione
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         const activeNav = document.querySelector(`[data-page="${page}"]`);
         if (activeNav) activeNav.classList.add('active');
 
-        // Aggiorna le pagine
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         const activePage = document.getElementById(`page-${page}`);
         if (activePage) activePage.classList.add('active');
 
-        // Aggiorna il titolo
-        const titles = {
-            'dashboard': 'Dashboard',
-            'machines': 'Macchinari',
-            'live': 'Stato Live',
-        };
+        const titles = { 'dashboard': 'Dashboard', 'machines': 'Macchinari', 'live': 'Stato Live' };
         document.getElementById('page-title').textContent = titles[page] || page;
-
         this.currentPage = page;
 
-        // Carica i dati della pagina
         if (page === 'machines') this.loadMachinesTable();
         if (page === 'live') this.loadLiveStatus();
 
-        // Chiude la barra laterale mobile
         document.getElementById('sidebar').classList.remove('open');
         const overlay = document.querySelector('.sidebar-overlay');
         if (overlay) overlay.classList.remove('active');
     },
 
-    // === LISTENER DEGLI EVENTI ===
     setupEventListeners() {
-        // Ricerca
         let searchTimeout;
-        document.getElementById('search-input').addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => this.loadMachinesTable(), 300);
-        });
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => this.loadMachinesTable(), 300);
+            });
+        }
+        const filterStato = document.getElementById('filter-stato');
+        if (filterStato) filterStato.addEventListener('change', () => this.loadMachinesTable());
+        
+        const filterCapannone = document.getElementById('filter-capannone');
+        if (filterCapannone) filterCapannone.addEventListener('change', () => this.loadMachinesTable());
 
-        // Filtri
-        document.getElementById('filter-stato').addEventListener('change', () => this.loadMachinesTable());
-        document.getElementById('filter-capannone').addEventListener('change', () => this.loadMachinesTable());
-
-        // Chiusura della modale
         document.getElementById('modal-close').addEventListener('click', () => this.closeModal());
         document.getElementById('form-modal-close').addEventListener('click', () => this.closeFormModal());
 
-        // Chiude le modali cliccando sull'overlay
         document.getElementById('machine-modal').addEventListener('click', (e) => {
             if (e.target.id === 'machine-modal') this.closeModal();
         });
@@ -129,23 +101,6 @@ const Dashboard = {
             if (e.target.id === 'form-modal') this.closeFormModal();
         });
 
-        // Menu mobile
-        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
-            document.getElementById('sidebar').classList.toggle('open');
-            let overlay = document.querySelector('.sidebar-overlay');
-            if (!overlay) {
-                overlay = document.createElement('div');
-                overlay.className = 'sidebar-overlay';
-                document.body.appendChild(overlay);
-                overlay.addEventListener('click', () => {
-                    document.getElementById('sidebar').classList.remove('open');
-                    overlay.classList.remove('active');
-                });
-            }
-            overlay.classList.toggle('active');
-        });
-
-        // Cambio scheda nelle modali
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('tab-btn')) {
                 const tabIndex = e.target.dataset.tab;
@@ -157,7 +112,6 @@ const Dashboard = {
             }
         });
 
-        // Tasto ESC per chiudere le modali
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 this.closeModal();
@@ -166,7 +120,6 @@ const Dashboard = {
         });
     },
 
-    // === CARICAMENTO DASHBOARD ===
     async loadDashboard() {
         try {
             const stats = await API.getMachineStats();
@@ -175,101 +128,26 @@ const Dashboard = {
             this.animateNumber('stat-stopped', stats.ferme);
             this.animateNumber('stat-maintenance', stats.in_manutenzione);
 
-            // Macchinari recenti
             const machinesData = await API.getMachines({ page_size: 5 });
             const machines = machinesData.results || machinesData;
             this.renderRecentMachines(machines);
 
-            // Anteprima live
             const liveData = await API.getLiveStatus();
             this.renderLivePreview(liveData);
-
-            // Popola il filtro del capannone
-            this.populateCapannoneFilter(machines);
-
         } catch (err) {
-            console.error('Dashboard load error:', err);
+            Components.toast('Errore nel caricamento della dashboard', 'error');
         }
     },
 
-    animateNumber(elementId, target) {
-        const el = document.getElementById(elementId);
-        const current = parseInt(el.textContent) || 0;
-        const duration = 600;
-        const start = performance.now();
-
-        const animate = (now) => {
-            const progress = Math.min((now - start) / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            el.textContent = Math.round(current + (target - current) * eased);
-            if (progress < 1) requestAnimationFrame(animate);
-        };
-
-        requestAnimationFrame(animate);
-    },
-
-    renderRecentMachines(machines) {
-        const container = document.getElementById('recent-machines');
-        if (!machines || machines.length === 0) {
-            container.innerHTML = '<div class="empty-state"><p>Nessun macchinario trovato.</p></div>';
-            return;
-        }
-        container.innerHTML = machines.slice(0, 6).map(m => `
-            <div class="mini-machine-item" onclick="Dashboard.showMachineDetail(${m.id})">
-                <div class="mini-machine-info">
-                    ${Components.statusBadge(m.stato)}
-                    <span class="mini-machine-matricola">${m.cdl || ''} - ${m.cc || ''}</span>
-                </div>
-                <span class="mini-machine-capannone">${m.capannone}</span>
-            </div>
-        `).join('');
-    },
-
-    renderLivePreview(data) {
-        const container = document.getElementById('live-preview');
-        if (!data || data.length === 0) {
-            container.innerHTML = '<div class="empty-state"><p>Nessun dato live.</p></div>';
-            return;
-        }
-        container.innerHTML = data.slice(0, 12).map(m => {
-            const dotColor = m.stato === 'attiva' ? 'var(--color-active)' :
-                             m.stato === 'ferma' ? 'var(--color-stopped)' : 'var(--color-maintenance)';
-            return `
-                <div class="live-mini-card">
-                    <span class="status-dot" style="background:${dotColor};"></span>
-                    <span class="matricola">${m.cdl || ''} ${m.cc || ''}</span>
-                    <span class="pezzi">${Components.formatNumber(m.pezzi_buoni)} pz</span>
-                </div>
-            `;
-        }).join('');
-    },
-
-    // === TABELLA MACCHINARI ===
-// === TABELLA MACCHINARI ===
-async loadMachinesTable() {
+    async loadMachinesTable() {
         const tbody = document.getElementById('machines-tbody');
-        
-        // Estrazione sicura del ruolo dell'utente senza usare funzioni esterne inesistenti
-        const user = Auth.getUser();
-        const officeCode = user && user.profile ? user.profile.ufficio : null;
-        const isSuper = user && user.is_superuser;
-        const showProduction = isSuper || officeCode === 'TECH' || officeCode === 'IT';
-
-        // Mostra o nasconde le colonne dell'intestazione (<th>) e dei dati (<td>)
-        document.querySelectorAll('.col-production').forEach(el => {
-            el.style.display = showProduction ? '' : 'none';
-        });
-
-        // 8 colonne se autorizzato, 6 per gli altri ruoli
-        const colCount = showProduction ? 8 : 6;
-        tbody.innerHTML = `<tr><td colspan="${colCount}" class="loading-placeholder">Caricamento...</td></tr>`;
-
+        tbody.innerHTML = '<tr><td colspan="8" class="loading-placeholder">Caricamento macchinari...</td></tr>';
         try {
-            const params = {};
             const search = document.getElementById('search-input').value;
             const stato = document.getElementById('filter-stato').value;
             const capannone = document.getElementById('filter-capannone').value;
 
+            const params = {};
             if (search) params.search = search;
             if (stato) params.stato = stato;
             if (capannone) params.capannone = capannone;
@@ -277,173 +155,132 @@ async loadMachinesTable() {
             const data = await API.getMachines(params);
             const machines = data.results || data;
 
-            if (!machines || machines.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${colCount}" class="loading-placeholder">Nessun macchinario trovato.</td></tr>`;
+            if (machines.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="empty-state">Nessun macchinario trovato.</td></tr>';
                 return;
             }
 
-            tbody.innerHTML = machines.map(m => {
+            const user = Auth.getUser();
+            const officeCode = Auth.getUserOfficeCode();
+            const showProduction = (user && user.is_superuser) || officeCode === 'TECH' || officeCode === 'IT';
+
+            document.querySelectorAll('.col-production').forEach(el => {
+                el.style.display = showProduction ? '' : 'none';
+            });
+
+            let html = '';
+            machines.forEach(m => {
                 const ls = m.latest_status;
-                
-                let productionCols = '';
-                if (showProduction) {
-                    const pezzi = ls && ls.pezzi_buoni !== undefined && ls.pezzi_buoni !== null 
-                        ? Components.formatNumber(ls.pezzi_buoni) 
-                        : '0';
-                    
-                    let fermo = '-';
-                    if (ls && ls.orario_fermo) {
-                        fermo = `Dal ${Components.formatDateTime(ls.orario_fermo)}`;
-                    }
-
-                    productionCols = `
-                        <td class="col-production"><strong>${pezzi}</strong></td>
-                        <td class="col-production" style="font-size: 0.85rem; color: var(--text-secondary);">${fermo}</td>
-                    `;
-                }
-
-                return `
-                    <tr>
+                html += `
+                    <tr onclick="Dashboard.openMachineModal(${m.id})" style="cursor:pointer;">
                         <td><strong>${m.cdl || '-'}</strong></td>
-                        <td><strong>${m.cc || '-'}</strong></td>
+                        <td>${m.cc || '-'}</td>
                         <td>${m.capannone}</td>
                         <td>${m.anno_avviamento || '-'}</td>
                         <td>${Components.statusBadge(m.stato)}</td>
-                        ${productionCols}
+                        ${showProduction ? `
+                            <td class="col-production" style="font-weight:600;color:var(--color-active);">${ls && ls.pezzi_buoni ? Components.formatNumber(ls.pezzi_buoni) : '0'}</td>
+                            <td class="col-production" style="font-size:0.85rem;color:var(--text-secondary);">${ls && ls.motivo_fermo ? ls.motivo_fermo : '-'}</td>
+                        ` : ''}
                         <td>
-                            <div class="table-actions">
-                                <button class="btn-icon" title="Dettaglio" onclick="Dashboard.showMachineDetail(${m.id})">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                                </button>
-                            </div>
+                            <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); Dashboard.openMachineModal(${m.id})">Dettagli</button>
                         </td>
                     </tr>
                 `;
-            }).join('');
-            
-            this.populateCapannoneFilter(machines);
-            
+            });
+            tbody.innerHTML = html;
         } catch (err) {
-            tbody.innerHTML = `<tr><td colspan="${colCount}" class="loading-placeholder">Errore: ${err.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" class="empty-state" style="color:var(--color-danger);">Errore: ${err.message}</td></tr>`;
         }
     },
 
-    populateCapannoneFilter(machines) {
-        const select = document.getElementById('filter-capannone');
-        const currentValue = select.value;
-        const capannoni = [...new Set(machines.map(m => m.capannone))].sort();
-        
-        // Aggiorna solo se le opzioni sono cambiate
-        const existingOptions = Array.from(select.options).slice(1).map(o => o.value);
-        if (JSON.stringify(capannoni) !== JSON.stringify(existingOptions)) {
-            select.innerHTML = '<option value="">Tutti i capannoni</option>' +
-                capannoni.map(c => `<option value="${c}" ${c === currentValue ? 'selected' : ''}>${c}</option>`).join('');
-        }
-    },
-
-    // === STATO LIVE ===
     async loadLiveStatus() {
-        const container = document.getElementById('live-grid');
-
+        const grid = document.getElementById('live-grid');
         try {
             const data = await API.getLiveStatus();
-
-            if (!data || data.length === 0) {
-                container.innerHTML = '<div class="empty-state"><p>Nessun macchinario attivo.</p></div>';
+            if (data.length === 0) {
+                grid.innerHTML = '<div class="empty-state"><p>Nessun macchinario in stato live.</p></div>';
                 return;
             }
-
-            container.innerHTML = data.map(m => `
-                <div class="live-card live-card--${m.stato}" onclick="Dashboard.showMachineDetail(${m.id})">
-                    <div class="live-card-header">
-                        <span class="live-card-title">${m.cdl || ''} / ${m.cc || ''}</span>
-                        ${Components.statusBadge(m.stato)}
-                    </div>
-                    <div class="live-card-body">
-                        <div class="live-stat">
-                            <span class="live-stat-label">Pezzi Buoni</span>
-                            <span class="live-stat-value pezzi">${Components.formatNumber(m.pezzi_buoni)}</span>
+            let html = '';
+            data.forEach(m => {
+                html += `
+                    <div class="live-card" onclick="Dashboard.openMachineModal(${m.id})" style="cursor:pointer;">
+                        <div class="live-card-header">
+                            <span class="live-card-title">${m.cdl || '-'} (${m.cc || '-'})</span>
+                            ${Components.statusBadge(m.stato)}
                         </div>
-                        <div class="live-stat">
-                            <span class="live-stat-label">Fermi</span>
-                            <span class="live-stat-value fermi">${Components.formatNumber(m.fermi_macchina)}</span>
-                        </div>
-                        <div class="live-stat">
-                            <span class="live-stat-label">Capannone</span>
-                            <span class="live-stat-value">${m.capannone}</span>
-                        </div>
-                        <div class="live-stat">
-                            <span class="live-stat-label">Ultimo Update</span>
-                            <span class="live-stat-value">${m.last_update ? Components.formatTime(m.last_update) : '—'}</span>
-                        </div>
-                    </div>
-                    ${m.motivo_fermo ? `
-                        <div class="live-card-footer">
-                            <div class="live-motivo">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                                ${m.motivo_fermo}
+                        <div class="live-card-body">
+                            <div class="live-stat">
+                                <span class="label">Capannone:</span>
+                                <span class="value">${m.capannone}</span>
+                            </div>
+                            <div class="live-stat">
+                                <span class="label">Pezzi Buoni:</span>
+                                <span class="value" style="color:var(--color-active);font-weight:700;">${Components.formatNumber(m.pezzi_buoni)}</span>
+                            </div>
+                            <div class="live-stat">
+                                <span class="label">Motivo Fermo:</span>
+                                <span class="value">${m.motivo_fermo || '-'}</span>
                             </div>
                         </div>
-                    ` : ''}
-                </div>
-            `).join('');
-
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
         } catch (err) {
-            container.innerHTML = `<div class="empty-state"><p>Errore: ${err.message}</p></div>`;
+            grid.innerHTML = '<div class="empty-state">Errore nel caricamento dello stato live.</div>';
         }
     },
 
-    // === POLLING ===
-    startPolling() {
-        this.pollingInterval = setInterval(async () => {
-            try {
-                if (this.currentPage === 'dashboard') {
-                    const stats = await API.getMachineStats();
-                    this.animateNumber('stat-total', stats.totale);
-                    this.animateNumber('stat-active', stats.attive);
-                    this.animateNumber('stat-stopped', stats.ferme);
-                    this.animateNumber('stat-maintenance', stats.in_manutenzione);
-
-                    // Aggiunta: Aggiorna anche i macchinari recenti in tempo reale
-                    const machinesData = await API.getMachines({ page_size: 5 });
-                    const machines = machinesData.results || machinesData;
-                    this.renderRecentMachines(machines);
-
-                    const liveData = await API.getLiveStatus();
-                    this.renderLivePreview(liveData);
-                }
-
-                if (this.currentPage === 'live') {
-                    this.loadLiveStatus();
-                }
-            } catch (err) {
-                console.warn('Polling error:', err);
-            }
-        }, 5000);
-    },
-
-    stopPolling() {
-        if (this.pollingInterval) {
-            clearInterval(this.pollingInterval);
-            this.pollingInterval = null;
+    renderRecentMachines(machines) {
+        const container = document.getElementById('recent-machines');
+        if (!machines || machines.length === 0) {
+            container.innerHTML = '<p class="empty-state">Nessun macchinario.</p>';
+            return;
         }
+        let html = '<div class="machines-mini-grid">';
+        machines.forEach(m => {
+            html += `
+                <div class="mini-machine-item" onclick="Dashboard.openMachineModal(${m.id})" style="cursor:pointer;padding:0.75rem;border-bottom:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <strong>${m.cdl || '-'}</strong> <span style="font-size:0.85rem;color:var(--text-secondary);">(${m.capannone})</span>
+                    </div>
+                    <div>${Components.statusBadge(m.stato)}</div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
     },
 
-    // === MODALE DETTAGLIO MACCHINARIO ===
-    async showMachineDetail(id) {
-        const modal = document.getElementById('machine-modal');
-        const body = document.getElementById('modal-body');
-        const title = document.getElementById('modal-title');
+    renderLivePreview(data) {
+        const container = document.getElementById('live-preview');
+        if (!data || data.length === 0) {
+            container.innerHTML = '<p class="empty-state">Nessun dato live.</p>';
+            return;
+        }
+        let html = '<div style="display:flex;flex-direction:column;gap:0.5rem;">';
+        data.slice(0, 4).forEach(m => {
+            html += `
+                <div style="display:flex;justify-content:space-between;font-size:0.9rem;padding:0.4rem 0;border-bottom:1px solid var(--border-color);">
+                    <span><strong>${m.cdl || '-'}</strong></span>
+                    <span style="color:var(--color-active);font-weight:600;">${Components.formatNumber(m.pezzi_buoni)} pz</span>
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    },
 
-        body.innerHTML = '<div class="loading-placeholder">Caricamento dettaglio...</div>';
-        modal.style.display = 'flex';
-
+    async openMachineModal(id) {
         try {
             const machine = await API.getMachine(id);
-            title.textContent = `CDL: ${machine.cdl || '-'} | CC: ${machine.cc || '-'} - ${machine.capannone}`;
-            body.innerHTML = Components.renderMachineDetail(machine);
+            document.getElementById('modal-title').textContent = `Macchinario: ${machine.cdl || '-'} / ${machine.cc || '-'}`;
+            document.getElementById('modal-body').innerHTML = Components.renderMachineDetail(machine);
+            document.getElementById('machine-modal').style.display = 'flex';
         } catch (err) {
-            body.innerHTML = `<div class="empty-state"><p>Errore: ${err.message}</p></div>`;
+            Components.toast('Errore nel recupero dei dettagli', 'error');
         }
     },
 
@@ -451,161 +288,127 @@ async loadMachinesTable() {
         document.getElementById('machine-modal').style.display = 'none';
     },
 
-    // === MODALI FORM ===
+    closeFormModal() {
+        document.getElementById('form-modal').style.display = 'none';
+    },
+
     showCreateForm() {
-        const modal = document.getElementById('form-modal');
-        const body = document.getElementById('form-modal-body');
-        const title = document.getElementById('form-modal-title');
+        document.getElementById('form-modal-title').textContent = 'Nuovo Macchinario';
+        document.getElementById('form-modal-body').innerHTML = Components.renderCreateForm();
+        document.getElementById('form-modal').style.display = 'flex';
 
-        title.textContent = 'Nuovo Macchinario';
-        body.innerHTML = Components.renderCreateForm();
-        modal.style.display = 'flex';
-
-        // Invio del form
-        document.getElementById('create-machine-form').addEventListener('submit', async (e) => {
+        const form = document.getElementById('create-machine-form');
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const formData = new FormData(e.target);
+            const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
-
-            // Pulisce i valori vuoti
-            if (!data.anno_avviamento) delete data.anno_avviamento;
-            else data.anno_avviamento = parseInt(data.anno_avviamento);
-
             try {
                 await API.createMachine(data);
-                Components.toast('Macchinario creato con successo!', 'success');
+                Components.toast('Macchinario creato con successo', 'success');
                 this.closeFormModal();
                 this.loadMachinesTable();
-                this.loadDashboard();
             } catch (err) {
                 Components.toast(err.message, 'error');
             }
         });
     },
 
-    async showEditForm(machineId) {
-        this.closeModal();
+    showEditForm(id) {
+        API.getMachine(id).then(machine => {
+            document.getElementById('form-modal-title').textContent = `Modifica: ${machine.cdl || '-'}`;
+            document.getElementById('form-modal-body').innerHTML = Components.renderEditForm(machine);
+            document.getElementById('form-modal').style.display = 'flex';
 
-        const modal = document.getElementById('form-modal');
-        const body = document.getElementById('form-modal-body');
-        const title = document.getElementById('form-modal-title');
-
-        body.innerHTML = '<div class="loading-placeholder">Caricamento...</div>';
-        modal.style.display = 'flex';
-
-        try {
-            const machine = await API.getMachine(machineId);
-            title.textContent = `Modifica ${machine.cdl || ''} - ${machine.cc || ''}`;
-            body.innerHTML = Components.renderEditForm(machine);
-
-            // Invio del form
-            document.getElementById('edit-machine-form').addEventListener('submit', async (e) => {
+            const form = document.getElementById('edit-machine-form');
+            form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const formData = new FormData(e.target);
+                const formData = new FormData(form);
                 const data = Object.fromEntries(formData.entries());
-                const id = data.machine_id;
-                delete data.machine_id;
-
+                
                 try {
-                    // Aggiorna i dati base del macchinario
-                    const machineData = {};
-                    if (Auth.canWrite('Machine', 'cdl') && data.cdl !== undefined) machineData.cdl = data.cdl;
-                    if (Auth.canWrite('Machine', 'cc') && data.cc !== undefined) machineData.cc = data.cc;
-                    if (Auth.canWrite('Machine', 'capannone') && data.capannone) machineData.capannone = data.capannone;
-                    if (Auth.canWrite('Machine', 'anno_avviamento')) {
-                        machineData.anno_avviamento = data.anno_avviamento ? parseInt(data.anno_avviamento) : null;
+                    await API.updateMachine(id, data);
+                    if (Auth.hasAnyPermission('MachineITData') && (data.tipo_accentratore !== undefined || data.indirizzo_ip !== undefined || data.note_it !== undefined)) {
+                        await API.updateITData(id, {
+                            tipo_accentratore: data.tipo_accentratore,
+                            indirizzo_ip: data.indirizzo_ip,
+                            note_it: data.note_it
+                        });
                     }
-
-                    if (Object.keys(machineData).length > 0) {
-                        await API.updateMachine(id, machineData);
+                    if (Auth.hasAnyPermission('MachineTechData') && (data.marca !== undefined || data.modello !== undefined)) {
+                        await API.updateTechData(id, {
+                            marca: data.marca,
+                            modello: data.modello,
+                            anno_costruzione: data.anno_costruzione,
+                            descrizione_tecnica: data.descrizione_tecnica,
+                            note_tecniche: data.note_tecniche
+                        });
                     }
-
-                    // Aggiorna i dati IT
-                    const itData = {};
-                    if (Auth.canWrite('MachineITData', 'tipo_accentratore') && data.tipo_accentratore !== undefined) {
-                        itData.tipo_accentratore = data.tipo_accentratore || null;
-                    }
-                    if (Auth.canWrite('MachineITData', 'indirizzo_ip') && data.indirizzo_ip !== undefined) {
-                        itData.indirizzo_ip = data.indirizzo_ip || null;
-                    }
-                    if (Auth.canWrite('MachineITData', 'note_it') && data.note_it !== undefined) {
-                        itData.note_it = data.note_it || '';
-                    }
-
-                    if (Object.keys(itData).length > 0) {
-                        await API.updateITData(id, itData);
-                    }
-
-                    // Aggiorna i dati tecnici
-                    const techData = {};
-                    ['marca', 'modello', 'descrizione_tecnica', 'note_tecniche'].forEach(f => {
-                        if (Auth.canWrite('MachineTechData', f) && data[f] !== undefined) {
-                            techData[f] = data[f] || '';
-                        }
-                    });
-                    if (Auth.canWrite('MachineTechData', 'anno_costruzione') && data.anno_costruzione !== undefined) {
-                        techData.anno_costruzione = data.anno_costruzione ? parseInt(data.anno_costruzione) : null;
-                    }
-
-                    if (Object.keys(techData).length > 0) {
-                        await API.updateTechData(id, techData);
-                    }
-
-                    Components.toast('Dati aggiornati con successo!', 'success');
+                    Components.toast('Modifiche salvate con successo', 'success');
                     this.closeFormModal();
-                    this.loadMachinesTable();
-                    this.loadDashboard();
+                    this.openMachineModal(id);
+                    if (this.currentPage === 'machines') this.loadMachinesTable();
                 } catch (err) {
                     Components.toast(err.message, 'error');
                 }
             });
-        } catch (err) {
-            body.innerHTML = `<div class="empty-state"><p>Errore: ${err.message}</p></div>`;
-        }
+        }).catch(err => {
+            Components.toast('Errore nel caricamento del modulo di modifica', 'error');
+        });
     },
 
     showUploadForm(machineId, type) {
-        this.closeModal();
+        document.getElementById('form-modal-title').textContent = type === 'admin' ? 'Carica Documento Amministrativo' : 'Carica Documento Tecnico';
+        document.getElementById('form-modal-body').innerHTML = Components.renderUploadForm(machineId, type);
+        document.getElementById('form-modal').style.display = 'flex';
 
-        if (!Auth.canUploadDocumentType(type)) {
-            Components.toast('Non hai i permessi per caricare questo tipo di documento.', 'error');
-            return;
-        }
-
-        const modal = document.getElementById('form-modal');
-        const body = document.getElementById('form-modal-body');
-        const title = document.getElementById('form-modal-title');
-
-        const titleText = type === 'admin' ? 'Carica Documento Amministrativo' : 'Carica Documento Tecnico';
-        title.textContent = titleText;
-        body.innerHTML = Components.renderUploadForm(machineId, type);
-        modal.style.display = 'flex';
-
-        // Invio del form
-        document.getElementById('upload-doc-form').addEventListener('submit', async (e) => {
+        const form = document.getElementById('upload-doc-form');
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const formData = new FormData(e.target);
-            const machId = formData.get('machine_id');
-            const docType = formData.get('doc_type');
-            formData.delete('machine_id');
-            formData.delete('doc_type');
-
+            const formData = new FormData(form);
             try {
-                if (docType === 'admin') {
-                    await API.uploadAdminDocument(machId, formData);
+                if (type === 'admin') {
+                    await API.uploadAdminDocument(machineId, formData);
                 } else {
-                    await API.uploadDocument(machId, formData);
+                    await API.uploadDocument(machineId, formData);
                 }
-                Components.toast('Documento caricato con successo!', 'success');
+                Components.toast('Documento caricato con successo', 'success');
                 this.closeFormModal();
-                this.showMachineDetail(machId);
+                this.openMachineModal(machineId);
             } catch (err) {
                 Components.toast(err.message, 'error');
             }
         });
     },
 
-    closeFormModal() {
-        document.getElementById('form-modal').style.display = 'none';
+    animateNumber(elementId, target) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        el.textContent = Components.formatNumber(target);
     },
+
+    startPolling() {
+        this.stopPolling();
+        this.pollingInterval = setInterval(async () => {
+            if (this.currentPage === 'dashboard') {
+                const stats = await API.getMachineStats().catch(() => null);
+                if (stats) {
+                    this.animateNumber('stat-total', stats.totale);
+                    this.animateNumber('stat-active', stats.attive);
+                    this.animateNumber('stat-stopped', stats.ferme);
+                    this.animateNumber('stat-maintenance', stats.in_manutenzione);
+                }
+            } else if (this.currentPage === 'machines') {
+                this.loadMachinesTable();
+            } else if (this.currentPage === 'live') {
+                this.loadLiveStatus();
+            }
+        }, 10000);
+    },
+
+    stopPolling() {
+        if (this.pollingInterval) {
+            clearInterval(this.pollingInterval);
+            this.pollingInterval = null;
+        }
+    }
 };
