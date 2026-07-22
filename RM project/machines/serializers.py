@@ -71,7 +71,7 @@ class MachineAdminDocumentSerializer(serializers.ModelSerializer):
 
     def get_uploaded_by_name(self, obj):
         if obj.uploaded_by:
-            return obj.uploaded_by.get_full_name() or obj.uploaded_by.username
+            return obj.updated_by.get_full_name() or obj.uploaded_by.username
         return None
 
 class MachineStatusLogSerializer(serializers.ModelSerializer):
@@ -93,7 +93,6 @@ class MachineListSerializer(serializers.ModelSerializer):
         latest = obj.status_logs.first()
         if latest:
             data = MachineStatusLogSerializer(latest).data
-            
             last_fermo = obj.status_logs.exclude(motivo_fermo__isnull=True).exclude(motivo_fermo='').first()
             if last_fermo:
                 data['orario_fermo'] = last_fermo.orario_fermo
@@ -101,7 +100,6 @@ class MachineListSerializer(serializers.ModelSerializer):
             else:
                 data['orario_fermo'] = None
                 data['motivo_fermo'] = None
-                
             return data
         return None
 
@@ -125,7 +123,6 @@ class MachineDetailSerializer(serializers.ModelSerializer):
         latest = obj.status_logs.first()
         if latest:
             data = MachineStatusLogSerializer(latest).data
-            
             last_fermo = obj.status_logs.exclude(motivo_fermo__isnull=True).exclude(motivo_fermo='').first()
             if last_fermo:
                 data['orario_fermo'] = last_fermo.orario_fermo
@@ -133,7 +130,6 @@ class MachineDetailSerializer(serializers.ModelSerializer):
             else:
                 data['orario_fermo'] = None
                 data['motivo_fermo'] = None
-                
             return data
         return None
 

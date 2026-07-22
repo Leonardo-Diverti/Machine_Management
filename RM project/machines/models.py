@@ -1,7 +1,5 @@
-# Questo file definisce i modelli dei macchinari, dati IT, tecnici e log di stato.
 from django.db import models
 from django.contrib.auth.models import User
-
 
 class Machine(models.Model):
     """Anagrafica macchinari"""
@@ -11,7 +9,6 @@ class Machine(models.Model):
         ('ferma', 'Ferma'),
         ('dismessa', 'Dismessa'),
     ]
-
     cdl = models.CharField(max_length=50, blank=True, null=True, verbose_name="CDL")
     cc = models.CharField(max_length=50, blank=True, null=True, verbose_name="CC")
     capannone = models.CharField(max_length=50, verbose_name="Capannone")
@@ -29,7 +26,6 @@ class Machine(models.Model):
     def __str__(self):
        return f"CDL: {self.cdl} | CC: {self.cc} - {self.capannone}"
 
-
 class MachineITData(models.Model):
     """Dati IT del macchinario"""
     ACCENTRATORE_CHOICES = [
@@ -37,7 +33,6 @@ class MachineITData(models.Model):
         ('RIO', 'RIO'),
         ('PLC', 'PLC'),
     ]
-
     machine = models.OneToOneField(Machine, on_delete=models.CASCADE, related_name='it_data')
     tipo_accentratore = models.CharField(max_length=10, choices=ACCENTRATORE_CHOICES,
                                           blank=True, null=True,
@@ -55,7 +50,6 @@ class MachineITData(models.Model):
 
     def __str__(self):
         return f"IT Data: {self.machine.cdl} - {self.machine.cc}"
-
 
 class MachineTechData(models.Model):
     """Dati tecnici del macchinario"""
@@ -78,7 +72,6 @@ class MachineTechData(models.Model):
     def __str__(self):
         return f"Tech Data: CDL {self.machine.cdl} / CC {self.machine.cc}"
 
-
 class MachineDocument(models.Model):
     """Documenti tecnici del macchinario"""
     TIPO_CHOICES = [
@@ -88,7 +81,6 @@ class MachineDocument(models.Model):
         ('VERBALE_COLLAUDO', 'Verbale di Collaudo'),
         ('ALTRO', 'Altro'),
     ]
-
     machine = models.ForeignKey(Machine, on_delete=models.CASCADE, related_name='documents')
     tipo_documento = models.CharField(max_length=30, choices=TIPO_CHOICES,
                                        verbose_name="Tipo Documento")
@@ -107,7 +99,6 @@ class MachineDocument(models.Model):
     def __str__(self):
         return f"{self.get_tipo_documento_display()} - CDL {self.machine.cdl} / CC {self.machine.cc}"
 
-
 class MachineAdminDocument(models.Model):
     """Documenti amministrativi del macchinario"""
     TIPO_CHOICES = [
@@ -118,14 +109,13 @@ class MachineAdminDocument(models.Model):
         ('PERIZIA_CONSULENTE', 'Perizia consulente'),
         ('ALTRO_ADMIN', 'Altro'),
     ]
-
     machine = models.ForeignKey(Machine, on_delete=models.CASCADE, related_name='admin_documents')
     tipo_documento = models.CharField(max_length=30, choices=TIPO_CHOICES,
                                        verbose_name="Tipo Documento")
     numero_documento = models.CharField(max_length=50, verbose_name="Numero Documento")
     data_documento = models.DateField(verbose_name="Data Documento")
     importo = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True,
-                                   verbose_name="Importo €")
+                                   verbose_name="Importo")
     fornitore = models.CharField(max_length=200, blank=True, null=True, verbose_name="Fornitore")
     descrizione = models.TextField(blank=True, null=True, verbose_name="Descrizione")
     file = models.FileField(upload_to='documents/admin/', blank=True, null=True,
@@ -142,7 +132,6 @@ class MachineAdminDocument(models.Model):
 
     def __str__(self):
         return f"{self.get_tipo_documento_display()} {self.numero_documento} - CDL {self.machine.cdl} / CC {self.machine.cc}"
-
 
 class MachineStatusLog(models.Model):
     """Log stato e contatori dal PLC (simulato)"""
