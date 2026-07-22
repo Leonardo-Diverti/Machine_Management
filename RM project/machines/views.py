@@ -85,6 +85,9 @@ class MachineViewSet(viewsets.ModelViewSet):
         result = []
         for machine in machines:
             latest_log = machine.status_logs.first()
+            # Estrae esplicitamente l'ultimo fermo storico
+            last_fermo = machine.status_logs.exclude(motivo_fermo__isnull=True).exclude(motivo_fermo='').first()
+            
             data = {
                 'id': machine.id,
                 'cdl': machine.cdl,
@@ -93,8 +96,9 @@ class MachineViewSet(viewsets.ModelViewSet):
                 'stato': machine.stato,
                 'pezzi_buoni': latest_log.pezzi_buoni if latest_log else 0,
                 'fermi_macchina': latest_log.fermi_macchina if latest_log else 0,
-                'orario_fermo': latest_log.orario_fermo if latest_log else None,
-                'motivo_fermo': latest_log.motivo_fermo if latest_log else None,
+                # Usa il last_fermo per data e motivo
+                'orario_fermo': last_fermo.orario_fermo if last_fermo else None,
+                'motivo_fermo': last_fermo.motivo_fermo if last_fermo else None,
                 'last_update': latest_log.timestamp if latest_log else None,
             }
             result.append(data)

@@ -102,6 +102,14 @@ const Components = {
 
         // Sezione log di stato (per IT)
         if (Auth.hasAnyPermission('MachineStatusLog')) {
+        // Sezione log di stato (Solo per IT, TECH o Superuser)
+        const user = Auth.getUser();
+        const officeCode = user && user.profile ? user.profile.ufficio : null;
+        const showProduction = (user && user.is_superuser) || officeCode === 'TECH' || officeCode === 'IT';
+
+        if (showProduction) {
+            const ls = machine.latest_status;
+            const ls = machine.latest_status;
             const ls = machine.latest_status;
             generalHtml += `
                 <div class="detail-section" style="margin-top:1.25rem;">
@@ -112,24 +120,25 @@ const Components = {
                     <div class="detail-grid">
                         <div class="detail-item">
                             <span class="detail-label">Pezzi Buoni</span>
-                            <span class="detail-value pezzi" style="color:var(--color-active);font-size:1.2rem;font-weight:700;">${ls ? this.formatNumber(ls.pezzi_buoni) : '—'}</span>
+                            <span class="detail-value pezzi" style="color:var(--color-active);font-size:1.2rem;font-weight:700;">${ls && ls.pezzi_buoni ? this.formatNumber(ls.pezzi_buoni) : '0'}</span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Fermi Macchina</span>
-                            <span class="detail-value" style="color:var(--color-stopped);font-size:1.2rem;font-weight:700;">${ls ? this.formatNumber(ls.fermi_macchina) : '—'}</span>
+                            <span class="detail-value" style="color:var(--color-stopped);font-size:1.2rem;font-weight:700;">${ls && ls.fermi_macchina ? this.formatNumber(ls.fermi_macchina) : '0'}</span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Orario Ultimo Fermo</span>
-                            <span class="detail-value">${ls && ls.orario_fermo ? this.formatDateTime(ls.orario_fermo) : '—'}</span>
+                            <span class="detail-value">${ls && ls.orario_fermo ? this.formatDateTime(ls.orario_fermo) : '-'}</span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Motivo Fermo</span>
-                            <span class="detail-value">${ls && ls.motivo_fermo ? ls.motivo_fermo : '—'}</span>
+                            <span class="detail-value">${ls && ls.motivo_fermo ? ls.motivo_fermo : '-'}</span>
                         </div>
                     </div>
                 </div>
             `;
         }
+    }
 
         // Costruisce l'array delle schede
         let tabsHtml = ['Generale'];

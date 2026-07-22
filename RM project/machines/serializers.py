@@ -88,6 +88,31 @@ class MachineStatusLogSerializer(serializers.ModelSerializer):
 
 
 class MachineListSerializer(serializers.ModelSerializer):
+    latest_status = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Machine
+        # Assicurati che i campi riflettano i tuoi modelli (cdl e cc)
+        fields = ['id', 'cdl', 'cc', 'capannone', 'anno_avviamento', 'stato', 'latest_status']
+
+    def get_latest_status(self, obj):
+        # Prende i pezzi buoni dall'ultimo log assoluto
+        latest = obj.status_logs.first()
+        if latest:
+            data = MachineStatusLogSerializer(latest).data
+            
+            # Cerca a ritroso l'ultimo vero e proprio fermo registrato
+            last_fermo = obj.status_logs.exclude(motivo_fermo__isnull=True).exclude(motivo_fermo='').first()
+            if last_fermo:
+                data['orario_fermo'] = last_fermo.orario_fermo
+                data['motivo_fermo'] = last_fermo.motivo_fermo
+            else:
+                data['orario_fermo'] = None
+                data['motivo_fermo'] = None
+                
+            return data
+        return None
+    
     """Serializer per la lista macchinari con ultimo stato"""
     latest_status = serializers.SerializerMethodField()
     stato_display = serializers.CharField(source='get_stato_display', read_only=True)
@@ -97,10 +122,22 @@ class MachineListSerializer(serializers.ModelSerializer):
         fields = ['id', 'cdl','cc', 'capannone', 'anno_avviamento', 'stato',
                   'stato_display', 'created_at', 'updated_at', 'latest_status']
 
-    def get_latest_status(self, obj):
+def get_latest_status(self, obj):
+        # Prende i pezzi buoni dall'ultimo log assoluto
         latest = obj.status_logs.first()
         if latest:
-            return MachineStatusLogSerializer(latest).data
+            data = MachineStatusLogSerializer(latest).data
+            
+            # Cerca a ritroso l'ultimo vero e proprio fermo registrato
+            last_fermo = obj.status_logs.exclude(motivo_fermo__isnull=True).exclude(motivo_fermo='').first()
+            if last_fermo:
+                data['orario_fermo'] = last_fermo.orario_fermo
+                data['motivo_fermo'] = last_fermo.motivo_fermo
+            else:
+                data['orario_fermo'] = None
+                data['motivo_fermo'] = None
+                
+            return data
         return None
 
 

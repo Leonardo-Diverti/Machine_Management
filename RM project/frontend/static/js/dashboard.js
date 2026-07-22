@@ -245,9 +245,24 @@ const Dashboard = {
     },
 
     // === TABELLA MACCHINARI ===
-    async loadMachinesTable() {
+// === TABELLA MACCHINARI ===
+async loadMachinesTable() {
         const tbody = document.getElementById('machines-tbody');
-        tbody.innerHTML = '<tr><td colspan="7" class="loading-placeholder">Caricamento...</td></tr>';
+        
+        // Estrazione sicura del ruolo dell'utente senza usare funzioni esterne inesistenti
+        const user = Auth.getUser();
+        const officeCode = user && user.profile ? user.profile.ufficio : null;
+        const isSuper = user && user.is_superuser;
+        const showProduction = isSuper || officeCode === 'TECH' || officeCode === 'IT';
+
+        // Mostra o nasconde le colonne dell'intestazione (<th>) e dei dati (<td>)
+        document.querySelectorAll('.col-production').forEach(el => {
+            el.style.display = showProduction ? '' : 'none';
+        });
+
+        // 8 colonne se autorizzato, 6 per gli altri ruoli
+        const colCount = showProduction ? 8 : 6;
+        tbody.innerHTML = `<tr><td colspan="${colCount}" class="loading-placeholder">Caricamento...</td></tr>`;
 
         try {
             const params = {};
@@ -263,21 +278,38 @@ const Dashboard = {
             const machines = data.results || data;
 
             if (!machines || machines.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="loading-placeholder">Nessun macchinario trovato.</td></tr>';
+                tbody.innerHTML = `<tr><td colspan="${colCount}" class="loading-placeholder">Nessun macchinario trovato.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = machines.map(m => {
                 const ls = m.latest_status;
-                const showPezzi = Auth.hasAnyPermission('MachineStatusLog');
+                
+                let productionCols = '';
+                if (showProduction) {
+                    const pezzi = ls && ls.pezzi_buoni !== undefined && ls.pezzi_buoni !== null 
+                        ? Components.formatNumber(ls.pezzi_buoni) 
+                        : '0';
+                    
+                    let fermo = '-';
+                    if (ls && ls.orario_fermo) {
+                        fermo = `Dal ${Components.formatDateTime(ls.orario_fermo)}`;
+                    }
+
+                    productionCols = `
+                        <td class="col-production"><strong>${pezzi}</strong></td>
+                        <td class="col-production" style="font-size: 0.85rem; color: var(--text-secondary);">${fermo}</td>
+                    `;
+                }
+
                 return `
                     <tr>
                         <td><strong>${m.cdl || '-'}</strong></td>
                         <td><strong>${m.cc || '-'}</strong></td>
                         <td>${m.capannone}</td>
-                        <td>${m.anno_avviamento || '—'}</td>
+                        <td>${m.anno_avviamento || '-'}</td>
                         <td>${Components.statusBadge(m.stato)}</td>
-                        <td class="col-pezzi">${showPezzi && ls ? Components.formatNumber(ls.pezzi_buoni) : '—'}</td>
+                        ${productionCols}
                         <td>
                             <div class="table-actions">
                                 <button class="btn-icon" title="Dettaglio" onclick="Dashboard.showMachineDetail(${m.id})">
@@ -288,11 +320,11 @@ const Dashboard = {
                     </tr>
                 `;
             }).join('');
-
+            
             this.populateCapannoneFilter(machines);
-
+            
         } catch (err) {
-            tbody.innerHTML = `<tr><td colspan="7" class="loading-placeholder">Errore: ${err.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="${colCount}" class="loading-placeholder">Errore: ${err.message}</td></tr>`;
         }
     },
 
@@ -300,7 +332,7 @@ const Dashboard = {
         const select = document.getElementById('filter-capannone');
         const currentValue = select.value;
         const capannoni = [...new Set(machines.map(m => m.capannone))].sort();
-
+        
         // Aggiorna solo se le opzioni sono cambiate
         const existingOptions = Array.from(select.options).slice(1).map(o => o.value);
         if (JSON.stringify(capannoni) !== JSON.stringify(existingOptions)) {

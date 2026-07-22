@@ -85,6 +85,11 @@ class Command(BaseCommand):
             (tech_office, 'MachineTechData', 'anno_costruzione', 'WRITE'),
             (tech_office, 'MachineTechData', 'note_tecniche', 'WRITE'),
             (tech_office, 'MachineDocument', '*', 'WRITE'),
+            (tech_office, 'MachineStatusLog', 'pezzi_buoni', 'READ'),
+            (tech_office, 'MachineStatusLog', 'fermi_macchina', 'READ'),
+            (tech_office, 'MachineStatusLog', 'orario_fermo', 'READ'),
+            (tech_office, 'MachineStatusLog', 'motivo_fermo', 'READ'),
+            (tech_office, 'MachineStatusLog', 'stato', 'READ'),
             # --- AMMINISTRAZIONE ---
             (admin_office, 'Machine', 'cdl', 'READ'),
             (admin_office, 'Machine', 'cc', 'READ'),

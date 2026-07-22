@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Gestionale Macchinari - Dashboard industriale per la gestione centralizzata dei macchinari aziendali">
-    <title>MachineHub — Gestionale Macchinari</title>
+    <title>Hub — Gestionale Macchinari</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -241,22 +241,23 @@
 
                     <!-- Tabella dei macchinari -->
                     <div class="table-container">
-                        <table class="data-table" id="machines-table">
-                            <thead>
+                       <table class="data-table" id="machines-table">
+                           <thead>
                                 <tr>
                                     <th>CDL</th>
                                     <th>CC</th>
                                     <th>Capannone</th>
                                     <th>Anno Avvio</th>
                                     <th>Stato</th>
-                                <th class="col-pezzi">Pezzi Buoni</th>
-                                <th>Azioni</th>
-                            </tr>
-                        </thead>
-                        <tbody id="machines-tbody">
-                            <tr><td colspan="7" class="loading-placeholder">Caricamento macchinari...</td></tr>
-                        </tbody>
-                    </table>
+                                    <th class="col-production" style="display: none;">Pezzi Buoni</th>
+                                    <th class="col-production" style="display: none;">Ultimo Fermo</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="machines-tbody">
+                                <tr><td colspan="8" class="loading-placeholder">Caricamento macchinari...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
