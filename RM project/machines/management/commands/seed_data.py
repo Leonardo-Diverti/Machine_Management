@@ -148,16 +148,16 @@ class Command(BaseCommand):
         # MACCHINARI DEMO
         # ==========================================
         machines_data = [
-            ('CDL-5707', 'Taglio', 2018, 'attiva', 'PLC', '192.168.1.101', 'Fanuc', 'Robodrill α-D21MiB5'),
-            ('CDL-6720', 'Uniko', 2019, 'attiva', 'PLC', '192.168.1.102', 'DMG Mori', 'NLX 2500'),
-            ('CDL-8864', 'Pressfitting', 2017, 'attiva', 'IOX', '192.168.1.103', 'Mazak', 'Quick Turn 250'),
-            ('CDL-5436', 'Carbonio', 2020, 'attiva', 'RIO', '192.168.1.201', 'Schuler', 'MSD 400'),
-            ('CDL-8822', 'Pilastro', 2015, 'in_manutenzione', 'RIO', '192.168.1.202', 'Komatsu', 'H2F300'),
-            ('CDL-8795', 'Imballo', 2021, 'attiva', 'PLC', '192.168.1.203', 'Trumpf', 'TruLaser 3030'),
-            ('CDL-2115', 'Taglio', 2016, 'attiva', 'IOX', '192.168.1.301', 'Haas', 'VF-2SS'),
-            ('CDL-8878', 'Uniko', 2022, 'attiva', 'PLC', '192.168.1.302', 'Hermle', 'C 400'),
-            ('CDL-5714', 'Carbonio', 2014, 'ferma', 'IOX', '192.168.1.303', 'Studer', 'S33'),
-            ('CDL-5743', 'Carbonio', 2023, 'attiva', 'PLC', '192.168.1.401', 'Bystronic', 'ByStar Fiber 3015'),
+            ('CDL-5707', 'Taglio', 2018, 'attiva', 'PLC', '192.168.1.101', 'BTB', 'Macchina laser tubo LT722 Fiber'),
+            ('CDL-6720', 'Uniko', 2019, 'attiva', 'PLC', '192.168.1.102', 'BTB', 'Macchina Laser tubo Adige LT722 Fiber'),
+            ('CDL-8864', 'Pressfitting', 2017, 'attiva', 'IOX', '192.168.1.103', 'BTB', 'Isola automatizzata di montaggio collaudo e montaggio o-ring'),
+            ('CDL-5436', 'Carbonio', 2020, 'attiva', 'RIO', '192.168.1.201', 'BTB', 'Macchina automatica di assemblaggio raccordi FELP - Matr. RM07251'),
+            ('CDL-8822', 'Pilastro', 2015, 'in_manutenzione', 'RIO', '192.168.1.202', 'BTB', 'Isola automatizzata di calibratura/smussatura 90° Ø 15-54'),
+            ('CDL-8795', 'Imballo', 2021, 'attiva', 'PLC', '192.168.1.203', 'BTB', 'Centro di lavoro verticale DVF4000 - Matricola: MV0166-000158'),
+            ('CDL-2115', 'Taglio', 2016, 'attiva', 'IOX', '192.168.1.301', 'BTB', 'Curvatrice per diametri 15-18-22 e 28'),
+            ('CDL-8878', 'Uniko', 2022, 'attiva', 'PLC', '192.168.1.302', 'BTB', 'CC8142 - Isola robotizzata tornio PUMA TW2600B'),
+            ('CDL-5714', 'Carbonio', 2014, 'ferma', 'IOX', '192.168.1.303', 'BTB', 'Macchina di deformazione automatica robotizzata Betty 3'),
+            ('CDL-5743', 'Carbonio', 2023, 'attiva', 'PLC', '192.168.1.401', 'BTB', 'Automazione Deformatrice Curve 90° 15-28 Rame'),
         ]
 
         for matr, cap, anno, stato, acc, ip, marca, modello in machines_data:

@@ -12,7 +12,6 @@ from machines.models import Machine
 class DocumentPermissionChecks(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.machine = Machine.objects.create(matricola='M-001', capannone='Capannone A')
 
         self.admin_office = Office.objects.create(code='ADMIN', name='Amministrazione')
         self.tech_office = Office.objects.create(code='TECH', name='Ufficio Tecnico')
