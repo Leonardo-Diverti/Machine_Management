@@ -20,7 +20,7 @@ class Command(BaseCommand):
     help = 'Popola il database con dati iniziali demo'
 
     def handle(self, *args, **options):
-        self.stdout.write('🌱 Creazione dati iniziali...\n')
+        self.stdout.write('Creazione dati iniziali...\n')
 
         # ==========================================
         # UFFICI
@@ -52,7 +52,7 @@ class Command(BaseCommand):
                 'icon': 'file-text',
             }
         )
-        self.stdout.write(self.style.SUCCESS('✅ Uffici creati'))
+        self.stdout.write(self.style.SUCCESS( 'Uffici creati'))
 
         # ==========================================
         # PERMESSI RBAC
@@ -99,7 +99,7 @@ class Command(BaseCommand):
                 field_name=field,
                 defaults={'permission_type': perm_type}
             )
-        self.stdout.write(self.style.SUCCESS('✅ Permessi RBAC configurati'))
+        self.stdout.write(self.style.SUCCESS('Permessi RBAC configurati'))
 
         # ==========================================
         # UTENTI DEMO
@@ -142,22 +142,22 @@ class Command(BaseCommand):
                 defaults={'office': it_office}
             )
 
-        self.stdout.write(self.style.SUCCESS('✅ Utenti demo creati'))
+        self.stdout.write(self.style.SUCCESS('Utenti demo creati'))
 
         # ==========================================
         # MACCHINARI DEMO
         # ==========================================
         machines_data = [
-            ('CNC-001', 'Capannone A', 2018, 'attiva', 'PLC', '192.168.1.101', 'Fanuc', 'Robodrill α-D21MiB5'),
-            ('CNC-002', 'Capannone A', 2019, 'attiva', 'PLC', '192.168.1.102', 'DMG Mori', 'NLX 2500'),
-            ('TRN-001', 'Capannone A', 2017, 'attiva', 'IOX', '192.168.1.103', 'Mazak', 'Quick Turn 250'),
-            ('PRE-001', 'Capannone B', 2020, 'attiva', 'RIO', '192.168.1.201', 'Schuler', 'MSD 400'),
-            ('PRE-002', 'Capannone B', 2015, 'in_manutenzione', 'RIO', '192.168.1.202', 'Komatsu', 'H2F300'),
-            ('SAL-001', 'Capannone B', 2021, 'attiva', 'PLC', '192.168.1.203', 'Trumpf', 'TruLaser 3030'),
-            ('FRE-001', 'Capannone C', 2016, 'attiva', 'IOX', '192.168.1.301', 'Haas', 'VF-2SS'),
-            ('FRE-002', 'Capannone C', 2022, 'attiva', 'PLC', '192.168.1.302', 'Hermle', 'C 400'),
-            ('RET-001', 'Capannone C', 2014, 'ferma', 'IOX', '192.168.1.303', 'Studer', 'S33'),
-            ('PIG-001', 'Capannone D', 2023, 'attiva', 'PLC', '192.168.1.401', 'Bystronic', 'ByStar Fiber 3015'),
+            ('CDL-5707', 'Taglio', 2018, 'attiva', 'PLC', '192.168.1.101', 'Fanuc', 'Robodrill α-D21MiB5'),
+            ('CDL-6720', 'Uniko', 2019, 'attiva', 'PLC', '192.168.1.102', 'DMG Mori', 'NLX 2500'),
+            ('CDL-8864', 'Pressfitting', 2017, 'attiva', 'IOX', '192.168.1.103', 'Mazak', 'Quick Turn 250'),
+            ('CDL-5436', 'Carbonio', 2020, 'attiva', 'RIO', '192.168.1.201', 'Schuler', 'MSD 400'),
+            ('CDL-8822', 'Pilastro', 2015, 'in_manutenzione', 'RIO', '192.168.1.202', 'Komatsu', 'H2F300'),
+            ('CDL-8795', 'Imballo', 2021, 'attiva', 'PLC', '192.168.1.203', 'Trumpf', 'TruLaser 3030'),
+            ('CDL-2115', 'Taglio', 2016, 'attiva', 'IOX', '192.168.1.301', 'Haas', 'VF-2SS'),
+            ('CDL-8878', 'Uniko', 2022, 'attiva', 'PLC', '192.168.1.302', 'Hermle', 'C 400'),
+            ('CDL-5714', 'Carbonio', 2014, 'ferma', 'IOX', '192.168.1.303', 'Studer', 'S33'),
+            ('CDL-5743', 'Carbonio', 2023, 'attiva', 'PLC', '192.168.1.401', 'Bystronic', 'ByStar Fiber 3015'),
         ]
 
         for matr, cap, anno, stato, acc, ip, marca, modello in machines_data:
@@ -200,8 +200,8 @@ class Command(BaseCommand):
                         fermi_macchina=base_fermi,
                     )
 
-        self.stdout.write(self.style.SUCCESS('✅ Macchinari demo creati'))
-        self.stdout.write(self.style.SUCCESS('\n🎉 Database popolato con successo!'))
+        self.stdout.write(self.style.SUCCESS('Macchinari demo creati'))
+        self.stdout.write(self.style.SUCCESS('\nDatabase popolato con successo!'))
         self.stdout.write('\nUtenti disponibili:')
         self.stdout.write('  admin_it    / demo1234  → Ufficio Informatico')
         self.stdout.write('  admin_tech  / demo1234  → Ufficio Tecnico')
