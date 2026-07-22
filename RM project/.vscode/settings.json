@@ -1,9 +1,0 @@
-{
-  "python.defaultInterpreterPath": "/workspaces/Machine_Management/RM project/.venv/bin/python",
-  "python.analysis.extraPaths": [
-    "/workspaces/Machine_Management/RM project"
-  ],
-  "python.terminal.activateEnvironment": true,
-  "python.analysis.autoSearchPaths": true,
-  "python.analysis.diagnosticMode": "workspace"
-}
