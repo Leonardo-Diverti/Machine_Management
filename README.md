@@ -15,7 +15,7 @@ Una volta che l'utente è autenticato, il sistema deve mostrargli lo stato della
 * **Inizializzazione della Dashboard:** Il file `app.js` avvia l'interfaccia principale e passa il controllo a `dashboard.js`. Questo script richiede i dati dei macchinari al backend usando `api.js`.
 * **Interrogazione del Database (App Machines):** La richiesta API arriva alle rotte di `machines/urls.py` e viene elaborata dalle `views.py` dell'app machines. Se l'utente ha usato la barra di ricerca o dei filtri nel frontend, il file `filters.py` interviene per estrarre dal database solo le macchine rilevanti (es. "mostra solo le macchine in blocco").
 * **Serializzazione dei Dati:** I dati estratti dal database (`models.py`) sono "grezzi". Il file `serializers.py` li converte in un pacchetto JSON ben formattato e li spedisce indietro al frontend.
-* **Rendering (Costruzione Visiva):** Il file `dashboard.js` riceve i dati JSON e usa i moduli definiti in `components.js` (come tabelle, grafici o schede) per "disegnare" i macchinari sullo schermo in tempo reale.
+* **Rendering (Costruzione Visiva):** Il file `dashboard.js` riceve i dati JSON e usa i moduli definiti in `components.js` (come tabelle, grafici o schede) per rappresentare i macchinari sullo schermo in tempo reale.
 
 ### 3. Il Cuore Industriale: La Simulazione del PLC
 In un'applicazione reale, le macchine industriali comunicano i loro parametri tramite un PLC. Questo progetto include un motore di simulazione autonomo.
