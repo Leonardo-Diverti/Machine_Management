@@ -1,9 +1,4 @@
 # Questo file contiene le impostazioni principali del progetto Django e della dashboard.
-"""
-Django settings for config project.
-Gestionale Macchinari - Industrial Dashboard
-"""
-
 from pathlib import Path
 from datetime import timedelta
 

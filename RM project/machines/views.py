@@ -91,11 +91,11 @@ class MachineViewSet(viewsets.ModelViewSet):
                 'cc': machine.cc,
                 'capannone': machine.capannone,
                 'stato': machine.stato,
+                'fase_operativa': machine.fase_operativa,
+                'tipo_acquisizione': machine.tipo_acquisizione,
                 'pezzi_buoni': latest_log.pezzi_buoni if latest_log else 0,
                 'fermi_macchina': latest_log.fermi_macchina if latest_log else 0,
-                'orario_fermo': latest_log.orario_fermo if latest_log else None,
-                'motivo_fermo': latest_log.motivo_fermo if latest_log else None,
-                'last_update': latest_log.timestamp if latest_log else None,
+                'last_update': latest_log.timestamp if latest_log else machine.updated_at,
             }
             result.append(data)
         return Response(result)
