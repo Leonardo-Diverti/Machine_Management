@@ -51,7 +51,7 @@ Le regole sono definite in `accounts/permissions.py` (controlla l'accesso) e `ma
 * **Documenti:** Lettura e scrittura su tutti i documenti tecnici (`MachineDocument`). Nessun accesso a `MachineAdminDocument`.
 * **Cosa non può fare:** Modificare campi IT diversi da quelli permessi, accedere/scrivere documenti amministrativi.
 
-### 4. Amministrazione (code='ADMIN')
+### 4. Amministrazione (code='AMM')
 * **Machine:** Sola lettura su `matricola`, `capannone`, `anno_avviamento`, `stato`.
 * **Documenti (Tech):** Lettura su tutti i documenti tecnici (`MachineDocument`).
 * **Documenti (Admin):** Lettura e scrittura su tutti i documenti amministrativi (`MachineAdminDocument`).
