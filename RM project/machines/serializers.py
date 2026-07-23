@@ -1,120 +1,94 @@
 from rest_framework import serializers
-from .models import (
-    Machine, MachineITData, MachineTechData, MachineDocument, 
-    MachineAdminDocument, MachineStatusLog, FaseCostruzione, 
-    MacchinaFase, DocumentoFase
-)
+from .models import Machine, FaseCostruzione, MacchinaFase, DocumentoFase
 
-class MachineITDataSerializer(serializers.ModelSerializer):
+def get_user_office_code(user):
+    """Determina il codice dell'ufficio dell'utente in base ai gruppi."""
+    if not user or not user.is_authenticated:
+        return None
+    if user.is_superuser:
+        return 'ADMIN'
+    
+    if hasattr(user, 'userprofile') and user.userprofile.office:
+        return user.userprofile.office.code.upper()
+
+    if user.groups.filter(name__in=['admin_tech', 'TECH', 'Ufficio Tecnico']).exists():
+        return 'TECH'
+    if user.groups.filter(name__in=['admin_it', 'IT', 'Ufficio Informatico']).exists():
+        return 'IT'
+    if user.groups.filter(name__in=['admin_amm', 'ADMIN', 'Amministrazione']).exists():
+        return 'ADMIN'
+        
+    return None
+
+
+class MachineSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MachineITData
+        model = Machine
         fields = '__all__'
 
 
-class MachineTechDataSerializer(serializers.ModelSerializer):
+class MachineCreateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MachineTechData
-        fields = '__all__'
-
-
-class MachineDocumentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MachineDocument
-        fields = '__all__'
-
-
-class MachineAdminDocumentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MachineAdminDocument
-        fields = '__all__'
-
-
-class MachineStatusLogSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MachineStatusLog
-        fields = ['id', 'machine', 'stato', 'pezzi_buoni', 'fermi_macchina', 'timestamp']
-
-
-class FaseCostruzioneSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FaseCostruzione
-        fields = '__all__'
+        model = Machine
+        fields = ['id', 'capannone', 'anno_avviamento', 'cc', 'cdl', 'tipo_acquisizione', 'stato']
+        read_only_fields = ['stato']
 
 
 class DocumentoFaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = DocumentoFase
-        fields = '__all__'
+        fields = ['id', 'nome_documento', 'file', 'completato']
 
 
 class MacchinaFaseSerializer(serializers.ModelSerializer):
-    documenti = DocumentoFaseSerializer(many=True, read_only=True)
-    fase_nome = serializers.CharField(source='fase.nome', read_only=True)
+    nome_fase = serializers.CharField(source='fase.nome', read_only=True)
+    ordine = serializers.IntegerField(source='fase.ordine', read_only=True)
     ufficio_competente = serializers.CharField(source='fase.ufficio_competente', read_only=True)
+    documenti = DocumentoFaseSerializer(many=True, read_only=True)
+    can_edit = serializers.SerializerMethodField()
+    can_view = serializers.SerializerMethodField()
 
     class Meta:
         model = MacchinaFase
-        fields = ['id', 'machine', 'fase', 'fase_nome', 'ufficio_competente', 'completata', 'data_completamento', 'documenti']
+        fields = [
+            'id', 'fase_id', 'nome_fase', 'ordine', 
+            'ufficio_competente', 'completata', 
+            'data_completamento', 'can_edit', 'can_view', 'documenti'
+        ]
+
+    def get_can_edit(self, obj):
+        request = self.context.get('request')
+        if not request:
+            return False
+        office = get_user_office_code(request.user)
+        if office == 'ADMIN':
+            return True
+        return office == obj.fase.ufficio_competente
+
+    def get_can_view(self, obj):
+        request = self.context.get('request')
+        if not request:
+            return False
+        office = get_user_office_code(request.user)
+        if office in ['ADMIN', 'TECH', 'IT']:
+            return True
+        return False
 
 
-class MachineListSerializer(serializers.ModelSerializer):
-    latest_status = serializers.SerializerMethodField()
+class MachineChecklistSerializer(serializers.ModelSerializer):
+    fasi = serializers.SerializerMethodField()
+    tutte_fasi_completate = serializers.SerializerMethodField()
 
     class Meta:
         model = Machine
         fields = [
-            'id', 'cdl', 'cc', 'capannone', 'anno_avviamento', 
-            'stato', 'fase_operativa', 'tipo_acquisizione', 'updated_at', 
-            'latest_status'
+            'id', 'capannone', 'cc', 'cdl', 'stato', 
+            'tipo_acquisizione', 'tutte_fasi_completate', 'fasi'
         ]
 
-    def get_latest_status(self, obj):
-        latest = obj.status_logs.order_by('-timestamp').first()
-        if latest:
-            return MachineStatusLogSerializer(latest).data
-        return None
+    def get_fasi(self, obj):
+        fasi_qs = obj.fasi.all().select_related('fase').prefetch_related('documenti')
+        return MacchinaFaseSerializer(fasi_qs, many=True, context=self.context).data
 
-
-class MachineSerializer(serializers.ModelSerializer):
-    it_data = MachineITDataSerializer(read_only=True)
-    tech_data = MachineTechDataSerializer(read_only=True)
-    latest_status = serializers.SerializerMethodField()
-    fasi_costruzione = MacchinaFaseSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Machine
-        fields = [
-            'id', 'cdl', 'cc', 'capannone', 'anno_avviamento', 
-            'stato', 'fase_operativa', 'tipo_acquisizione', 'updated_at', 
-            'it_data', 'tech_data', 'latest_status', 'fasi_costruzione'
-        ]
-
-    def get_latest_status(self, obj):
-        latest = obj.status_logs.order_by('-timestamp').first()
-        if latest:
-            return MachineStatusLogSerializer(latest).data
-        return None
-
-
-class MachineDetailSerializer(serializers.ModelSerializer):
-    it_data = MachineITDataSerializer(read_only=True)
-    tech_data = MachineTechDataSerializer(read_only=True)
-    latest_status = serializers.SerializerMethodField()
-    fasi_costruzione = MacchinaFaseSerializer(many=True, read_only=True)
-    documents = MachineDocumentSerializer(many=True, read_only=True)
-    admin_documents = MachineAdminDocumentSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Machine
-        fields = [
-            'id', 'cdl', 'cc', 'capannone', 'anno_avviamento', 
-            'stato', 'fase_operativa', 'tipo_acquisizione', 'updated_at', 
-            'it_data', 'tech_data', 'latest_status', 'fasi_costruzione', 
-            'documents', 'admin_documents'
-        ]
-
-    def get_latest_status(self, obj):
-        latest = obj.status_logs.order_by('-timestamp').first()
-        if latest:
-            return MachineStatusLogSerializer(latest).data
-        return None
+    def get_tutte_fasi_completate(self, obj):
+        return obj.check_tutte_fasi_completate()
