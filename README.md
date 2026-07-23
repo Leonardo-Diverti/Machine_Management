@@ -26,7 +26,7 @@ In un'applicazione reale, le macchine industriali comunicano i loro parametri tr
 1. **Simulatore PLC (`simulate_plc.py`)** genera dati in background e li salva in Database (`db.sqlite3`).
 2. **Utente** apre il browser e carica Frontend (`app.js`, `dashboard.js`).
 3. **Frontend (`api.js`)** fa richieste sicure tramite token al Backend (config + `machines/views.py`).
-4. **Backend** recupera i dati dal database, li filtra (`filters.py`), li pacchetta (`serializers.py`) e li invia al Frontend.
+4. **Backend** recupera i dati dal database, li filtra (`filters.py`), li impacchetta (`serializers.py`) e li invia al Frontend.
 5. **Frontend (`components.js`)** mostra i parametri delle macchine aggiornati all'utente.
 
 ## 🔐 Ruoli e Permessi (RBAC)
