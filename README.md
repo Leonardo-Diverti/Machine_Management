@@ -20,7 +20,7 @@ Una volta che l'utente è autenticato, il sistema deve mostrargli lo stato della
 ### 3. Il Cuore Industriale: La Simulazione del PLC
 In un'applicazione reale, le macchine industriali comunicano i loro parametri tramite un PLC. Questo progetto include un motore di simulazione autonomo.
 * **Generazione dei Dati:** In background, viene eseguito lo script `simulate_plc.py`. Questo file agisce come se fosse una fabbrica vera e propria: calcola temperature finte, genera variazioni di stato o simula errori per le varie macchine e li scrive continuamente nel database (`db.sqlite3`).
-* **Aggiornamento dell'Interfaccia:** Il frontend (`dashboard.js`), tramite un meccanismo di aggiornamento ciclico (polling o WebSockets), continua a richiedere i dati freschi all'app machines. Di conseguenza, l'utente vede i grafici e i numeri della dashboard cambiare in tempo reale, riflettendo il lavoro svolto dal simulatore PLC.
+* **Aggiornamento dell'Interfaccia:** Il frontend (`dashboard.js`), tramite un meccanismo di aggiornamento ciclico, continua a richiedere i dati freschi all'app machines. Di conseguenza, l'utente vede i grafici e i numeri della dashboard cambiare in tempo reale, riflettendo il lavoro svolto dal simulatore PLC.
 
 ## 🔄 Sintesi del Flusso di Dati
 1. **Simulatore PLC (`simulate_plc.py`)** genera dati in background e li salva in Database (`db.sqlite3`).
