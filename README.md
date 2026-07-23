@@ -7,7 +7,7 @@ Il sistema è progettato per garantire un'esperienza utente fluida e dati costan
 ### 1. Il Primo Accesso: Caricamento e Autenticazione
 * **Richiesta Iniziale:** La richiesta arriva al file di configurazione centrale (`config/urls.py`), che riconosce che l'utente sta cercando di accedere alla pagina web e lo reindirizza all'app frontend.
 * **Caricamento della SPA (Single Page Application):** L'app frontend risponde inviando al browser un'unica pagina base (`index.html`) e i file statici associati (il foglio di stile `styles.css` e i file JavaScript). Da questo momento, l'interfaccia diventa dinamica e non ricarica più l'intera pagina web.
-* **Controllo degli Accessi:** Lo script `auth.js` entra in gioco e verifica se l'utente ha una sessione attiva. Se non è loggato, l'interfaccia mostra il modulo di login. Le credenziali inserite vengono inviate (tramite `api.js`) all'app accounts del backend.
+* **Controllo degli Accessi:** Lo script `auth.js` verifica se l'utente ha una sessione attiva. Se non è loggato, l'interfaccia mostra il modulo di login. Le credenziali inserite vengono inviate (tramite `api.js`) all'app accounts del backend.
 * **Validazione Backend:** Le `views.py` e `serializers.py` di accounts interrogano il database (`db.sqlite3`) per verificare le credenziali e generano un "token" o una sessione sicura, gestita da `permissions.py` per definire cosa quell'utente può fare (es. utente uff.IT vs. utente uff.amministrazione).
 
 ### 2. Richiesta e Visualizzazione dei Dati dei Macchinari
